@@ -1,5 +1,15 @@
 # Yuesheng-Audio-Book
 
+## Status
+
+![GitHub contributors](https://img.shields.io/github/contributors/yarlung-zangbo/Yuesheng-Audio-Book.svg?style=flat-square)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/yarlung-zangbo/Yuesheng-Audio-Book.svg?color=green&style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/yarlung-zangbo/Yuesheng-Audio-Book.svg?style=flat-square)
+
+![GitHub issues](https://img.shields.io/github/issues/yarlung-zangbo/Yuesheng-Audio-Book.svg?style=flat-square)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/yarlung-zangbo/Yuesheng-Audio-Book.svg?style=flat-square)
+![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/yarlung-zangbo/Yuesheng-Audio-Book.svg?style=flat-square)
+
 ## Coding Standard
 
 - [git Commit Style](https://github.com/yarlung-zangbo/paperwork/blob/master/git-standard/Commit-Style.md)
