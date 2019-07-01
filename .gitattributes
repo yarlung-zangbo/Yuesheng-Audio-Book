@@ -1,0 +1,2 @@
+*.sql linguist-detectable=true
+mysql/insert_data.sql linguist-generated=true
