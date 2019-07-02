@@ -2,17 +2,17 @@ pipeline {
     agent any
 
     stages {
+        // eureka
         stage('Build') {
             steps {
                 echo 'Building..'
-                sh 'mvn install'
-                sh 'mvn spring-boot:run'
+                sh 'cd code/eureka && mvn install && mvn spring-boot:run'
             }
         }
         stage('Test') {
             steps {
                 echo 'Testing..'
-                sh 'mvn test'
+                sh 'cd code/eureka && mvn test'
             }
         }
         stage('Deploy') {
