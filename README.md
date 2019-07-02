@@ -1,4 +1,4 @@
-# Yuesheng-Audio-Book Â· [![Build Status](http://49.234.78.95:8081/buildStatus/icon?job=Yuesheng-Audio-Book)](http://49.234.78.95:8081/job/Yuesheng-Audio-Book/)
+# Yuesheng-Audio-Book · [![Build Status](http://49.234.78.95:8081/buildStatus/icon?job=Yuesheng-Audio-Book)](http://49.234.78.95:8081/job/Yuesheng-Audio-Book/)
 
 ## Team Members
 
