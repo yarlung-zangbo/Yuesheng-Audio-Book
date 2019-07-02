@@ -1,5 +1,11 @@
 # Yuesheng-Audio-Book
 
+## Team Members
+马包威(组长) M-More
+袁卓 Yuan-Zhuo
+周雪振 xiaxiao2625666138
+王绍宇 RoyalRaisins
+
 ## Status
 
 ![GitHub contributors](https://img.shields.io/github/contributors/yarlung-zangbo/Yuesheng-Audio-Book.svg?style=flat-square)
