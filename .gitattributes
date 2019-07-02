@@ -1,2 +1,4 @@
 *.sql linguist-detectable=true
-mysql/insert_data.sql linguist-generated=true
+*.md linguist-language=XML linguist-detectable=true
+Jenkinsfile linguist-language=shell linguist-detectable=true
+doc/mysql/yuesheng.sql linguist-generated=true
