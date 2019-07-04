@@ -9,7 +9,7 @@ public class FFMpegUtil {
     private static String ffmpegEXE = "/usr/local/Cellar/ffmpeg/4.1.1/bin/ffmpeg";
 
     public static void main(String[] args) throws Exception {
-        convetor("/Users/MMore/Desktop/AT1.mp3","/Users/MMore/Desktop/bg.mp3",
+        convetor("/Users/MMore/Desktop/1.mp3","/Users/MMore/Desktop/bg.mp3",
                 "/Users/MMore/Desktop/out.mp3");
         System.out.println("success!");
     }
