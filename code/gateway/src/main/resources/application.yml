@@ -1,0 +1,18 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8081/eureka/
+server:
+  port: 8083
+spring:
+  application:
+    name: gateway
+zuul:
+  routes:
+    api-1:
+      path: /client1/**
+      serviceId: client1
+    api-2:
+      path: /client2/**
+      serviceId: client2
+  prefix: /api
