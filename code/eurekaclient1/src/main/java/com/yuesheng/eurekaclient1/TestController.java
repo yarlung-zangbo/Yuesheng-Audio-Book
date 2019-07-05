@@ -14,5 +14,4 @@ public class TestController {
     public String post(@RequestBody TestParam testParam) {
         return "testParam 1" + testParam.toString();
     }
-
 }

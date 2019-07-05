@@ -8,3 +8,7 @@ spring:
       server:
         git:
           uri: https://github.com/yarlung-zangbo/Yuesheng-Audio-Book
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8081/eureka/
