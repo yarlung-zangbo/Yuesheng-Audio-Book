@@ -2,7 +2,7 @@ server:
   port: 9021
 spring:
   application:
-    name: ribbon-client
+    name: client1
 eureka:
   client:
     service-url:
