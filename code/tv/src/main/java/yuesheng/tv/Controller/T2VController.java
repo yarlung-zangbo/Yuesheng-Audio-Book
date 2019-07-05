@@ -1,10 +1,13 @@
-package yuesheng.tv;
+package yuesheng.tv.Controller;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import yuesheng.tv.Entity.TextAudio;
+import yuesheng.tv.Repository.TextAudioRepository;
+import yuesheng.tv.Utility.T2V;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
@@ -15,8 +18,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/T2V")
 public class T2VController {
+    @Autowired
+    TextAudioRepository textAudioRepository;
     @PostMapping(value = "/getaudio")
-    public Map<String,Object> T2V(@RequestParam("file") MultipartFile file, @RequestParam("title")String title){
+    public Map<String,Object> T2V(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("BookId")Integer bookid){
         Map<String,Object> response = new HashMap();
         T2V t2v = new T2V();
         System.out.println(title);
@@ -45,9 +50,26 @@ public class T2VController {
             response.put("response","Title too long!");
             return response;
         }
-        String res = t2v.TextToAudioBinary(text,title);
-
-        response.put("response",res);
+        Map<String, Object> res= t2v.TextToAudioBinary(text,title);
+        if(res.get("res").equals("success")) {
+            File audio = new File(res.get("Path").toString());
+            byte[] audioBytes = T2V.getBytes(audio);
+            TextAudio TA = new TextAudio();
+            TA.setBookId(bookid);
+            TA.setAudio(audioBytes);
+            try {
+                TA.setText(file.getBytes());
+            }
+            catch (Exception e) {
+                System.out.println(e.getMessage());
+                response.put("response","failure occurred");
+                return response;
+            }
+            textAudioRepository.save(TA);
+            response.put("reponse","Success");
+            return response;
+        }
+        response.put("response",res.get("res"));
         return response;
     }
 }

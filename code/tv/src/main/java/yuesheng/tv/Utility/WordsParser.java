@@ -1,6 +1,5 @@
-package yuesheng.tv;
+package yuesheng.tv.Utility;
 
-import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
 
 

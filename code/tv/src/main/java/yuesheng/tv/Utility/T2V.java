@@ -1,25 +1,22 @@
-package yuesheng.tv;
+package yuesheng.tv.Utility;
 import com.baidu.aip.speech.AipSpeech;
 import com.baidu.aip.speech.TtsResponse;
 import com.baidu.aip.util.Util;
-import org.ansj.domain.Term;
-import org.ansj.splitWord.analysis.ToAnalysis;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.mp3.MP3AudioHeader;
 import org.jaudiotagger.audio.mp3.MP3File;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 public class T2V {
     public static final String APP_ID = "16682530";
     public static final String API_KEY = "AHo1rGgmZy29ULcCPyBVxcrY";
     public static final String SECRET_KEY = "rtwOSBH7kEjoVrghtfW52MNsWqLupi9Z";
 
-    public String TextToAudioBinary(String text,String title) {
+    public Map<String, Object> TextToAudioBinary(String text, String title) {
         // 初始化一个AipSpeech
         AipSpeech client = new AipSpeech(APP_ID, API_KEY, SECRET_KEY);
 
@@ -33,7 +30,7 @@ public class T2V {
 
         // 可选：设置log4j日志输出格式，若不设置，则使用默认配置
         // 也可以直接通过jvm启动参数设置此环境变量
-        System.setProperty("aip.log4j.conf", "D:\\SEI\\week19\\tv\\src\\main\\resources\\log4j.properties");
+        System.setProperty("aip.log4j.conf", "D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\log4j.properties");
 
         // 调用接口
         int length = text.length(), i = 0, j = 0, resLength;
@@ -47,7 +44,7 @@ public class T2V {
         while(i<length){
             j=i;
             char c = text.charAt(i);
-            while(i<length&&i<1024&&c!='。'&&c!='！'&&c!='？'&&c!='，'&&c!='；'&&c!='…')
+            while(i<length&&i-j<1024&&c!='。'&&c!='！'&&c!='？'&&c!='，'&&c!='；'&&c!='…')
                 c = text.charAt(i++);
             System.out.println("i= "+i);
             String excerpt = text.substring(j,i);
@@ -55,6 +52,7 @@ public class T2V {
             HashMap<String,Object> options = new HashMap<String,Object>();
             options.put("vol",8);
             TtsResponse res = client.synthesis(excerpt, "zh", 1, options);
+            System.out.println("Api returned");
             byte[] ResponseB = res.getData();
             ResBOS.write(ResponseB,0,ResponseB.length);
             JSONObject res1 = res.getResult();
@@ -65,17 +63,17 @@ public class T2V {
         result = ResBOS.toByteArray();
         if (result != null) {
             try {
-                String voicepath = "D:\\SEI\\week19\\tv\\src\\main\\resources\\"+title+".mp3";
+                String voicepath = "D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\"+title+".mp3";
                 Util.writeBytesToFileSystem(result, voicepath);
                 File read = new File(voicepath);
-                File bg = new File("D:\\SEI\\week19\\tv\\src\\main\\resources\\static\\Various Artists - 国际歌 (俄语).mp3");
+                File bg = new File("D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\static\\Various Artists - 国际歌 (俄语).mp3");
                 int readLength = T2V.getMp3TrackLength(read);
                 System.out.println("Audio file length: "+ readLength);
                 int bgLength = T2V.getMp3TrackLength(bg);
                 System.out.println("readLength: "+readLength+", "+"bgLength: "+bgLength);
                 byte[] bgBytes = T2V.getBytes(bg);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
-                String newBGPath = "D:\\SEI\\week19\\tv\\src\\main\\resources\\"+"Internationale"+"_BG"+".mp3";
+                String newBGPath = "D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\"+"Internationale"+"_BG"+".mp3";
                 File reWrite = new File(newBGPath);
                 FileOutputStream RWFOS = new FileOutputStream(reWrite,false);
                 BufferedOutputStream buos = new BufferedOutputStream(RWFOS);
@@ -87,16 +85,21 @@ public class T2V {
                 buos.flush();
                 buos.close();
                 RWFOS.close();
-                String outPath = "D:\\SEI\\week19\\tv\\src\\main\\resources\\"+title+"_With_BGM"+".mp3";
+                String outPath = "D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\"+title+"_With_BGM"+".mp3";
                 System.out.println("Convertor entered");
                 FFMpegUtil.convetor(voicepath, newBGPath,outPath);
                 System.out.println("Convertor done.");
-                return "Output.";
+                HashMap<String, Object> res = new HashMap<>();
+                res.put("res","success");
+                res.put("Path",outPath);
+                return res;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        return "Failure occurred.";
+        HashMap<String,Object> res = new HashMap<>();
+        res.put("res","failed");
+        return res;
     }
     public static int getMp3TrackLength(File mp3File) {
         try {
