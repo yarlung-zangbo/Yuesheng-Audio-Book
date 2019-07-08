@@ -16,12 +16,4 @@ public class WebController {
         return result;
     }
 
-    @GetMapping("/test2")
-    public String test2() {
-        TestParam testParam = new TestParam(55, "zhangsan");
-        String result = myFeignClient.post(testParam);
-        System.out.println(result);
-        return result;
-    }
-
 }

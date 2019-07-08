@@ -2,10 +2,13 @@ server:
   port: 9023
 spring:
   application:
-    name: ribbon-web
+    name: web-hytrix
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8081/eureka/
   instance:
     prefer-ip-address: true
+feign:
+  hystrix:
+    enabled: true
