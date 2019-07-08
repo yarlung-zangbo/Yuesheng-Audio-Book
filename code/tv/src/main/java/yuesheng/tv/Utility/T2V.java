@@ -30,7 +30,8 @@ public class T2V {
 
         // 可选：设置log4j日志输出格式，若不设置，则使用默认配置
         // 也可以直接通过jvm启动参数设置此环境变量
-        System.setProperty("aip.log4j.conf", "D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\log4j.properties");
+        String resoucesPath = "D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\";
+                System.setProperty("aip.log4j.conf", resoucesPath+"log4j.properties");
 
         // 调用接口
         int length = text.length(), i = 0, j = 0, resLength;
@@ -63,17 +64,17 @@ public class T2V {
         result = ResBOS.toByteArray();
         if (result != null) {
             try {
-                String voicepath = "D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\"+title+".mp3";
+                String voicepath = resoucesPath+title+".mp3";
                 Util.writeBytesToFileSystem(result, voicepath);
                 File read = new File(voicepath);
-                File bg = new File("D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\static\\Various Artists - 国际歌 (俄语).mp3");
+                File bg = new File(resoucesPath+"static\\Various Artists - 国际歌 (俄语).mp3");
                 int readLength = T2V.getMp3TrackLength(read);
                 System.out.println("Audio file length: "+ readLength);
                 int bgLength = T2V.getMp3TrackLength(bg);
                 System.out.println("readLength: "+readLength+", "+"bgLength: "+bgLength);
                 byte[] bgBytes = T2V.getBytes(bg);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
-                String newBGPath = "D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\"+"Internationale"+"_BG"+".mp3";
+                String newBGPath = resoucesPath+"Internationale"+"_BG"+".mp3";
                 File reWrite = new File(newBGPath);
                 FileOutputStream RWFOS = new FileOutputStream(reWrite,false);
                 BufferedOutputStream buos = new BufferedOutputStream(RWFOS);
@@ -85,7 +86,7 @@ public class T2V {
                 buos.flush();
                 buos.close();
                 RWFOS.close();
-                String outPath = "D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\"+title+"_With_BGM"+".mp3";
+                String outPath = resoucesPath+title+"_With_BGM"+".mp3";
                 System.out.println("Convertor entered");
                 FFMpegUtil.convetor(voicepath, newBGPath,outPath);
                 System.out.println("Convertor done.");

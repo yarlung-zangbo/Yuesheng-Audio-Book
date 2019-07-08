@@ -4,6 +4,7 @@ package yuesheng.tv.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import yuesheng.tv.DAO.SoundDao;
 import yuesheng.tv.Entity.TextAudio;
 import yuesheng.tv.Repository.TextAudioRepository;
 import yuesheng.tv.Utility.T2V;
@@ -20,6 +21,8 @@ import java.util.Map;
 public class T2VController {
     @Autowired
     TextAudioRepository textAudioRepository;
+    @Autowired
+    SoundDao soundDao;
     @PostMapping(value = "/getaudio")
     public Map<String,Object> T2V(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("BookId")Integer bookid){
         Map<String,Object> response = new HashMap();
