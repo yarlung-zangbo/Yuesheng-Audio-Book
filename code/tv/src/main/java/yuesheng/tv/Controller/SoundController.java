@@ -12,12 +12,11 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-public class UserController {
+public class SoundController {
 
 
     @Autowired
     private SoundService soundService;
-
     /* Test */
     /*
     @GetMapping(value="/initSound")

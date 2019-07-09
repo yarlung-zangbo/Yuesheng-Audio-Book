@@ -18,7 +18,7 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(classes = TvApplication.class)
 //测试环境使用，用来表示测试环境使用的ApplicationContext将是WebApplicationContext类型的
 @WebAppConfiguration
-public class T2VControllerTest {
+public class T2VimplControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;

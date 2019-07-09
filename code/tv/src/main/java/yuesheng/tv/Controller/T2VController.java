@@ -7,7 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 import yuesheng.tv.DAO.SoundDao;
 import yuesheng.tv.Entity.TextAudio;
 import yuesheng.tv.Repository.TextAudioRepository;
-import yuesheng.tv.Utility.T2V;
+import yuesheng.tv.Service.T2V;
+import yuesheng.tv.Utility.FFMpegUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,10 +24,11 @@ public class T2VController {
     TextAudioRepository textAudioRepository;
     @Autowired
     SoundDao soundDao;
+    @Autowired
+    T2V t2v;
     @PostMapping(value = "/getaudio")
     public Map<String,Object> T2V(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("BookId")Integer bookid){
         Map<String,Object> response = new HashMap();
-        T2V t2v = new T2V();
         System.out.println(title);
         StringBuffer SB = new StringBuffer();
         String text="1";
@@ -56,7 +58,7 @@ public class T2VController {
         Map<String, Object> res= t2v.TextToAudioBinary(text,title);
         if(res.get("res").equals("success")) {
             File audio = new File(res.get("Path").toString());
-            byte[] audioBytes = T2V.getBytes(audio);
+            byte[] audioBytes = FFMpegUtil.getBytes(audio);
             TextAudio TA = new TextAudio();
             TA.setBookId(bookid);
             TA.setAudio(audioBytes);
