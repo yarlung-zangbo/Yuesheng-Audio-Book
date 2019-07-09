@@ -97,7 +97,6 @@ public class T2Vimpl implements T2V {
                 if(sound!=null) {
                     byte[] soundEffect = sound.getContent();
                     System.out.println(soundEffect.length);
-                    ResBOS.write(soundEffect,0,soundEffect.length);
                     System.out.println(words[l]+" found and added.");
                     String found = resoucesPath+"static\\"+words[l]+".mp3";
                     try{

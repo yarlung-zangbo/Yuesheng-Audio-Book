@@ -9,9 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FFMpegUtil {
-    private static String ffmpegEXE = "ffmpeg";
+    private static String ffmpegEXE = "D:\\SummerProject\\ffmpeg-20190702-231d0c8-win64-static\\bin\\ffmpeg.exe";
 
     public static void main(String[] args) throws Exception {
+        concatenator("D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\0.mpg","D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\static\\3.mpg","D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\风1.mp3");
         System.out.println("success!");
     }
 
@@ -65,15 +66,26 @@ public class FFMpegUtil {
     }
     public static void concatenator(String audioPath1,String audioPath2, String OutPath) throws Exception {
         List<String> command = new ArrayList<String>();
-        command.add("cat");
-        command.add(audioPath1);
-        command.add(audioPath2);
-        command.add("|");
+        String middleman = "D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\static\\middle.mpg";
+        BufferedInputStream boi1 = new BufferedInputStream(new FileInputStream(new File(audioPath1)));
+        BufferedInputStream boi2 = new BufferedInputStream(new FileInputStream(new File(audioPath2)));
+        SequenceInputStream SIS = new SequenceInputStream(boi1,boi2);
+        BufferedOutputStream BOM= new BufferedOutputStream(new FileOutputStream(new File(middleman)));
+        int i=0;
+        while((i=SIS.read())!=-1){
+            BOM.write(i);
+        }
+        BOM.flush();
+        SIS.close();
+        BOM.close();
+        boi1.close();
+        boi2.close();
         command.add(ffmpegEXE);
+        command.add("-y");
         command.add("-f");
         command.add("mpeg");
         command.add("-i");
-        command.add("-");
+        command.add(middleman);
         command.add("-qscale");
         command.add("0");
         command.add("-vcodec");
