@@ -38,7 +38,6 @@ public class T2VController {
             BufferedReader BR = new BufferedReader(ISR);
             String s;
             while((s = BR.readLine())!=null) {
-                System.out.println(s);
                 SB.append(s);
             }
             text = SB.toString();
