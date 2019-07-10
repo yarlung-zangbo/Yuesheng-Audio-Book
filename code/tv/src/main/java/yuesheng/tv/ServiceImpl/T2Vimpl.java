@@ -91,6 +91,7 @@ public class T2Vimpl implements T2V {
                 voicepath = resoucesPath+title+appendCount+".mp3";
                 FFMpegUtil.concatenator(tick1,tick2,voicepath);
             }
+            appendCount++;
             for(int l = 0; l<words.length; l++) {
                 System.out.println(words[l]);
                 Sound sound = soundDao.findByName(words[l]);
