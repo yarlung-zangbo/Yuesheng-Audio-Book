@@ -15,6 +15,7 @@ import yuesheng.tv.Utility.FFMpegUtil;
 import yuesheng.tv.Utility.MongoDBUtil;
 import yuesheng.tv.Utility.WordsParser;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class T2Vimpl implements T2V {
     @Autowired
     private SoundDao soundDao;
     @Override
-    public Map<String, Object> TextToAudioBinary(String text, String title) {
+    public Map<String, Object> TextToAudioBinary(String text, String title, Integer person) {
         // 初始化一个AipSpeech
         AipSpeech client = new AipSpeech(APP_ID, API_KEY, SECRET_KEY);
         // 可选：设置网络连接参数
@@ -73,6 +74,7 @@ public class T2Vimpl implements T2V {
             String[] words = WordsParser.LineToWords(excerpt);
             HashMap<String,Object> options = new HashMap<String,Object>();
             options.put("vol",8);
+            options.put("per",person);
             TtsResponse res = client.synthesis(excerpt, "zh", 1, options);
             System.out.println("Api returned");
             byte[] ResponseB = res.getData();

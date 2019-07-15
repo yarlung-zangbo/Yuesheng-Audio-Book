@@ -27,9 +27,10 @@ public class T2VController {
     @Autowired
     T2V t2v;
     @PostMapping(value = "/getaudio")
-    public Map<String,Object> T2V(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("BookId")Integer bookid){
+    public Map<String,Object> T2V(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("BookId")Integer bookid, @RequestParam(required = false,value= "per") Integer person){
         Map<String,Object> response = new HashMap();
         System.out.println(title);
+        if(person==null) person = 3;
         StringBuffer SB = new StringBuffer();
         String text="1";
         try {
@@ -54,7 +55,7 @@ public class T2VController {
             response.put("response","Title too long!");
             return response;
         }
-        Map<String, Object> res= t2v.TextToAudioBinary(text,title);
+        Map<String, Object> res= t2v.TextToAudioBinary(text,title,person);
         if(res.get("res").equals("success")) {
             File audio = new File(res.get("Path").toString());
             byte[] audioBytes = FFMpegUtil.getBytes(audio);

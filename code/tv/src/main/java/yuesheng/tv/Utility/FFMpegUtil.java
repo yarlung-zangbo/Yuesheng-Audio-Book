@@ -11,18 +11,18 @@ import java.util.List;
 public class FFMpegUtil {
     private static String ffmpegEXE = "D:\\SummerProject\\ffmpeg-20190702-231d0c8-win64-static\\bin\\ffmpeg.exe";
 
-    public static void main(String[] args) throws Exception {
-        concatenator("D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\0.mpg","D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\static\\3.mpg","D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\风1.mp3");
+    /*public static void main(String[] args) throws Exception {
+        //concatenator("D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\0.mpg","D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\static\\3.mpg","D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\风1.mp3");
         System.out.println("success!");
     }
-
+    */
     /**
      * @param audioInputPath1 音频1的路径
      * @param audioInputPath2 音频2的路径
      * @param OutPath         合成之后音频的路径
      * @throws Exception
      */
-    // 将两个音频结合，同时生成结合之后的文件
+    // 将两个音频结合，同时生成结合后的文件
     // ffmpeg -i input1.wav -i input2.wav -filter_complex amix=inputs=2:duration=shortest output.wav
     public static void convetor(String audioInputPath1, String audioInputPath2, String OutPath)
             throws Exception {

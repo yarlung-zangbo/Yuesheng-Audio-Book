@@ -51,13 +51,14 @@ public class V2Timpl implements V2T {
             else step  = 1024*512;
             System.arraycopy(data,ptr,req,0,step);
             ptr+=step*mod;
+            HashMap<String, Object> options = new HashMap<String, Object>();
             JSONObject res = client.asr(req, "wav", 16000, null);
             try {
                 System.out.println(res.toString(2));
                 System.out.println(res.get("result"));
                 String result = res.get("result").toString();
                 int strLength = result.length();
-                finalResult = TextConcatUtil.ConcatText(finalResult,result.substring(2,strLength-2),30);
+                finalResult = TextConcatUtil.ConcatText(finalResult,result.substring(2,strLength-2),30,10);
                 System.out.println(finalResult);
             }
             catch (Exception e) {
