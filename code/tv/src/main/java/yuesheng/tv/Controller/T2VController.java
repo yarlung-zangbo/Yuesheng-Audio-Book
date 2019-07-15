@@ -31,6 +31,9 @@ public class T2VController {
         Map<String,Object> response = new HashMap();
         System.out.println(title);
         if(person==null) person = 3;
+        if(person<0||person>4) {
+            response.put("response","Requested voice nonexistent");
+        }
         StringBuffer SB = new StringBuffer();
         String text="1";
         try {
