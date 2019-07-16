@@ -73,6 +73,11 @@
             <version>2.0.3</version>
         </dependency>
         <dependency>
+            <groupId>com.hankcs</groupId>
+            <artifactId>hanlp</artifactId>
+            <version>portable-1.7.4</version>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-Java</artifactId>
             <version>8.0.15</version>
