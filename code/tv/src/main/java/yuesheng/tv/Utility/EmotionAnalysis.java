@@ -3,11 +3,9 @@ package yuesheng.tv.Utility;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.dictionary.CoreDictionary;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
+import org.springframework.core.io.ClassPathResource;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +16,12 @@ public class EmotionAnalysis
     static int emvalue_PA, emvalue_PE, emvalue_PD, emvalue_PH, emvalue_PG, emvalue_PB, emvalue_PK,
                 emvalue_NA, emvalue_NB, emvalue_NJ, emvalue_NH, emvalue_PF, emvalue_NI, emvalue_PC,
                 emvalue_NC, emvalue_NG, emvalue_NE, emvalue_ND, emvalue_NN, emvalue_NK, emvalue_NL;
-    public static Map<String,Integer> parseText() throws IOException {
-        List<String> emotionList=new ArrayList<String>();
-
-        File file = new File("static/emotion.dic");
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+    static int called=0;
+    static List<String> emotionList = new ArrayList<>();
+    public static void initializer() throws IOException{
+        System.out.println("EmotionAnalysis initializing");
+        ClassPathResource file = new ClassPathResource("static/emotion.dic");
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(file.getInputStream()));
         String str = null;
         while((str = bufferedReader.readLine()) != null)
         {
@@ -34,20 +33,13 @@ public class EmotionAnalysis
             CustomDictionary.add(arr[0], emotion);
             emotionList.add(arr[0]);
         }
+        System.out.println("EmotionAnalysis initialized");
         bufferedReader.close();
 
-        String text = "";
-        File textfile = new File("/Users/MMore/Desktop/hanlp/src/main/java/com/example/hanlp/text.txt");
-        BufferedReader textbufferedReader = new BufferedReader(new FileReader(textfile));
-        String strline = null;
-        while((strline = textbufferedReader.readLine()) != null)
-        {
-            text = text + strline;
-        }
-        textbufferedReader.close();
-
-
-
+    }
+    public static Map<String,Integer> parseText(String text) throws IOException {
+        if(called==0) initializer();
+        called+=1;
         // AhoCorasickDoubleArrayTrie自动机扫描文本中出现的自定义词语
         final char[] charArray = text.toCharArray();
         CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>()
@@ -173,6 +165,27 @@ public class EmotionAnalysis
         report.put("NN",emvalue_NN);
         report.put("NK",emvalue_NK);
         report.put("NL",emvalue_NL);
+        emvalue_PA=0;
+        emvalue_PE=0;
+        emvalue_PD=0;
+        emvalue_PC=0;
+        emvalue_PH=0;
+        emvalue_NA=0;
+        emvalue_PG=0;
+        emvalue_PB=0;
+        emvalue_PK=0;
+        emvalue_NB=0;
+        emvalue_NJ=0;
+        emvalue_NH=0;
+        emvalue_PF=0;
+        emvalue_NI=0;
+        emvalue_NC=0;
+        emvalue_NG=0;
+        emvalue_NE=0;
+        emvalue_ND=0;
+        emvalue_NN=0;
+        emvalue_NK=0;
+        emvalue_NL=0;
         return report;
     }
 }

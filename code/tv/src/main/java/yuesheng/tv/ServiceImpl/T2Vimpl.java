@@ -4,20 +4,17 @@ import com.baidu.aip.speech.TtsResponse;
 import com.baidu.aip.util.Util;
 
 
-import com.mongodb.client.MongoDatabase;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import yuesheng.tv.DAO.SoundDao;
 import yuesheng.tv.Entity.Sound;
 import yuesheng.tv.Service.T2V;
-import yuesheng.tv.Utility.FFMpegUtil;
-import yuesheng.tv.Utility.MongoDBUtil;
-import yuesheng.tv.Utility.WordsParser;
+import yuesheng.tv.Utility.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -27,6 +24,8 @@ public class T2Vimpl implements T2V {
     public static final String SECRET_KEY = "rtwOSBH7kEjoVrghtfW52MNsWqLupi9Z";
     @Autowired
     private SoundDao soundDao;
+    @Autowired
+    CorrelationComputer correlationComputer;
     @Override
     public Map<String, Object> TextToAudioBinary(String text, String title, Integer person) {
         // 初始化一个AipSpeech
@@ -34,7 +33,15 @@ public class T2Vimpl implements T2V {
         // 可选：设置网络连接参数
         client.setConnectionTimeoutInMillis(2000);
         client.setSocketTimeoutInMillis(60000);
-
+        String bgmName = "";
+        try{
+            Map<String,Integer> Analysis = EmotionAnalysis.parseText(text);
+            bgmName = correlationComputer.BGMPicker(Analysis);
+            System.out.println(bgmName);
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
         // 可选：设置代理服务器地址, http和socket二选一，或者均不设置
         //client.setHttpProxy("proxy_host", 80);  // 设置http代理
         //client.setSocketProxy("proxy_host", proxy_port);  // 设置socket代理
@@ -47,14 +54,11 @@ public class T2Vimpl implements T2V {
         // 调用接口
 
         BufferedOutputStream ResBOS;
-        String voicepath = resoucesPath+title+".mp3";
+        String voicepath = "";
         try {
             int length = text.length(), i = 0, j = 0, resLength;
-            System.out.println(text);
             text.replaceAll("\n"," ");
-            System.out.println(text);
             System.out.println(length);
-            System.out.println(text.substring(0,3));
             int appendCount=0;
         while(i<length){
             String Ovoicepath = voicepath;
@@ -71,50 +75,59 @@ public class T2Vimpl implements T2V {
                 c = text.charAt(i++);
             System.out.println("i= "+i);
             String excerpt = text.substring(j,i);
-            String[] words = WordsParser.LineToWords(excerpt);
+            List<String> words = SoundEffect.VerifySE(excerpt);
             HashMap<String,Object> options = new HashMap<String,Object>();
             options.put("vol",8);
             options.put("per",person);
             TtsResponse res = client.synthesis(excerpt, "zh", 1, options);
             System.out.println("Api returned");
             byte[] ResponseB = res.getData();
-            System.out.println(words[0]);
             ResBOS.write(ResponseB,0,ResponseB.length);
             ResBOS.flush();
             ResBOS.close();
             AudioOutput.close();
             if(appendCount!=0){
-                String tick1,tick2;
-                tick1 = resoucesPath+appendCount+".mpg";
+                String tick2;
                 tick2 = resoucesPath+"res.mpg";
-                FFMpegUtil.tickFormat(Ovoicepath,tick1);
                 FFMpegUtil.tickFormat(voicepath,tick2);
                 appendCount++;
-                voicepath = resoucesPath+title+appendCount+".mp3";
-                FFMpegUtil.concatenator(tick1,tick2,voicepath);
+                voicepath = resoucesPath+title+appendCount+".mpg";
+                FFMpegUtil.concatenator(Ovoicepath,tick2,voicepath);
+                File f2 = new File(Ovoicepath);
+                f2.delete();
             }
-            appendCount++;
-            for(int l = 0; l<words.length; l++) {
-                System.out.println(words[l]);
-                Sound sound = soundDao.findByName(words[l]);
+            else{
+                Ovoicepath = voicepath;
+                voicepath = resoucesPath+title+appendCount+".mpg";
+                FFMpegUtil.tickFormat(Ovoicepath,voicepath);
+                File f = new File(Ovoicepath);
+                f.delete();
+                appendCount++;
+            }
+            for(int l = 0; l<words.size(); l++) {
+                System.out.println(words.get(l));
+                Sound sound = soundDao.findByName(words.get(l));
                 if(sound!=null) {
                     byte[] soundEffect = sound.getContent();
                     System.out.println(soundEffect.length);
-                    System.out.println(words[l]+" found and added.");
-                    String found = resoucesPath+"static\\"+words[l]+".mp3";
+                    System.out.println(sound.getName()+" found and added.");
+                    String found = resoucesPath+"static\\soundeffects\\"+sound.getName()+".mp3";
                     try{
                         Util.writeBytesToFileSystem(sound.getContent(),found);
                     }
                     catch (Exception e) { }
-                    String tick1,tick2;
-                    tick1 = resoucesPath+appendCount+".mpg";
-                    tick2 = resoucesPath+"static\\"+l+".mpg";
-                    FFMpegUtil.tickFormat(voicepath,tick1);
+                    String tick2;
+                    tick2 = resoucesPath+"static\\soundeffects\\"+appendCount+"_"+l+".mpg";
                     FFMpegUtil.tickFormat(found,tick2);
                     appendCount++;
-                    voicepath = resoucesPath+title+appendCount+".mp3";
+                    Ovoicepath = voicepath;
+                    voicepath = resoucesPath+title+appendCount+".mpg";
                     System.out.println("VoicePath: "+voicepath);
-                    FFMpegUtil.concatenator(tick1,tick2,voicepath);
+                    FFMpegUtil.concatenator(Ovoicepath,tick2,voicepath);
+                    File f2 = new File(tick2);
+                    File f3 = new File(Ovoicepath);
+                    f2.delete();
+                    f3.delete();
                 }
             }
             JSONObject res1 = res.getResult();
@@ -130,7 +143,9 @@ public class T2Vimpl implements T2V {
             return res;
         }
             try {
-                File read = new File(voicepath);
+                String tick = resoucesPath+title+".mp3";
+                FFMpegUtil.tickFormat(voicepath,tick);
+                File read = new File(tick);
                 File bg = new File(resoucesPath+"static\\Various Artists - 国际歌 (俄语).mp3");
                 int readLength = FFMpegUtil.getMp3TrackLength(read);
                 System.out.println("Audio file length: "+ readLength);

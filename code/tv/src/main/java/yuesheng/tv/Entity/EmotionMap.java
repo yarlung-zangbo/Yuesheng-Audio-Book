@@ -9,7 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Data
-@Table(name = "EmotionMap")
+@Table(name = "emotionmap")
 @Entity
 public class EmotionMap {
     @EmbeddedId

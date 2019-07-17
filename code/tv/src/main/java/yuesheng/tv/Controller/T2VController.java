@@ -48,12 +48,10 @@ public class T2VController {
             IPS.close();
             ISR.close();
             BR.close();
-            System.out.println(text);
         }
         catch(Exception e) {
             System.out.println("Exception: "+e.getMessage());
         }
-        System.out.println(text);
         if(title.length()>64) {
             response.put("response","Title too long!");
             return response;
