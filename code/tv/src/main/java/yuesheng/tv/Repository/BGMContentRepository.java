@@ -1,4 +1,8 @@
 package yuesheng.tv.Repository;
 
-public interface BGMContentRepository {
+import org.springframework.data.mongodb.repository.MongoRepository;
+import yuesheng.tv.Entity.BGMContent;
+
+public interface BGMContentRepository extends MongoRepository<BGMContent,String> {
+    public BGMContent findByName(String name);
 }

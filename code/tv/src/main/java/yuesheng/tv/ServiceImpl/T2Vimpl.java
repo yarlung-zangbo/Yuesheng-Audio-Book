@@ -8,7 +8,9 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import yuesheng.tv.DAO.SoundDao;
+import yuesheng.tv.Entity.BGMContent;
 import yuesheng.tv.Entity.Sound;
+import yuesheng.tv.Repository.BGMContentRepository;
 import yuesheng.tv.Service.T2V;
 import yuesheng.tv.Utility.*;
 
@@ -26,6 +28,8 @@ public class T2Vimpl implements T2V {
     private SoundDao soundDao;
     @Autowired
     CorrelationComputer correlationComputer;
+    @Autowired
+    BGMContentRepository bgmContentRepository;
     @Override
     public Map<String, Object> TextToAudioBinary(String text, String title, Integer person) {
         // 初始化一个AipSpeech
@@ -77,8 +81,9 @@ public class T2Vimpl implements T2V {
             String excerpt = text.substring(j,i);
             List<String> words = SoundEffect.VerifySE(excerpt);
             HashMap<String,Object> options = new HashMap<String,Object>();
-            options.put("vol",8);
+            options.put("vol",13);
             options.put("per",person);
+            options.put("spd",4);
             TtsResponse res = client.synthesis(excerpt, "zh", 1, options);
             System.out.println("Api returned");
             byte[] ResponseB = res.getData();
@@ -145,15 +150,21 @@ public class T2Vimpl implements T2V {
             try {
                 String tick = resoucesPath+title+".mp3";
                 FFMpegUtil.tickFormat(voicepath,tick);
+                System.out.println(bgmName);
+                BGMContent bgmContent = bgmContentRepository.findByName(bgmName);
+                System.out.println(bgmContent.getName());
+                String bgmPath = resoucesPath+"static\\bgm\\"+bgmName+".mp3";
+                Util.writeBytesToFileSystem(bgmContent.getContent(),bgmPath);
+                bgmPath = FFMpegUtil.LowerVolumn(bgmPath);
                 File read = new File(tick);
-                File bg = new File(resoucesPath+"static\\Various Artists - 国际歌 (俄语).mp3");
+                File bg = new File(bgmPath);
                 int readLength = FFMpegUtil.getMp3TrackLength(read);
                 System.out.println("Audio file length: "+ readLength);
                 int bgLength = FFMpegUtil.getMp3TrackLength(bg);
                 System.out.println("readLength: "+readLength+", "+"bgLength: "+bgLength);
                 byte[] bgBytes = FFMpegUtil.getBytes(bg);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
-                String newBGPath = resoucesPath+"Internationale"+"_BG"+".mp3";
+                String newBGPath = resoucesPath+"\\static\\bgm"+bgmName+"_BG"+".mp3";
                 File reWrite = new File(newBGPath);
                 FileOutputStream RWFOS = new FileOutputStream(reWrite,false);
                 BufferedOutputStream buos = new BufferedOutputStream(RWFOS);
@@ -167,7 +178,7 @@ public class T2Vimpl implements T2V {
                 RWFOS.close();
                 String outPath = resoucesPath+title+"_With_BGM"+".mp3";
                 System.out.println("Convertor entered");
-                FFMpegUtil.convetor(voicepath, newBGPath,outPath);
+                FFMpegUtil.convetor(tick, newBGPath,outPath);
                 System.out.println("Convertor done.");
                 HashMap<String, Object> res = new HashMap<>();
                 res.put("res","success");

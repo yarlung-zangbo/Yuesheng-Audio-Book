@@ -155,6 +155,45 @@ public class FFMpegUtil {
         }
         catch (Exception E){}
     }
+    public static String LowerVolumn(String path){
+        String output = path.substring(0,path.length()-4)+"_L.mp3";
+        List<String> command = new ArrayList<String>();
+        command.add(ffmpegEXE);
+        command.add("-y");
+        command.add("-i");
+        command.add(path);
+        command.add("-af");
+        command.add("volume = -10dB");
+        command.add(output);
+        ProcessBuilder builder = new ProcessBuilder(command);
+        Process process = null;
+        try {
+            process = builder.start();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        // 对流进行处理
+        InputStream errorStream = process.getErrorStream();
+        InputStreamReader inputStreamReader = new InputStreamReader(errorStream);
+        BufferedReader br = new BufferedReader(inputStreamReader);
+        try {
+            String line = "";
+            while ((line = br.readLine()) != null) {
+            }
+            if (br != null) {
+                br.close();
+            }
+            if (inputStreamReader != null) {
+                inputStreamReader.close();
+            }
+            if (errorStream != null) {
+                errorStream.close();
+            }
+        }
+        catch (Exception E){}
+        return output;
+    }
 
     public static byte[] getBytes(File file) {
         System.out.println(file.getName());
