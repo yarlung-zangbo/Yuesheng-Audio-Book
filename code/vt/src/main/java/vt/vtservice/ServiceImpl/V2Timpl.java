@@ -23,7 +23,7 @@ import java.util.Map;
 
 @Service
 public class V2Timpl implements V2T {
-    static String resoucesPath = "src/main/resources/";
+    static String resoucesPath = "src\\main\\resources\\";
     public static final String APP_ID = "16682530";
     public static final String API_KEY = "AHo1rGgmZy29ULcCPyBVxcrY";
     public static final String SECRET_KEY = "rtwOSBH7kEjoVrghtfW52MNsWqLupi9Z";
@@ -39,8 +39,9 @@ public class V2Timpl implements V2T {
         // 初始化一个AipSpeech
         String product =  resoucesPath+"static\\"+title+".mp3";
         String output = resoucesPath+"static\\"+title+0+".mpg",OOutput = output;
+        String bgmOutPath = resoucesPath+"static\\bgm\\"+"BGM0.mp3",OBGMOutPath;
         StringBuffer textBuffer=new StringBuffer();
-        int appendage=0;
+        int appendage=0,bgmNo=0,plannedLength=0;
         AipSpeech client = new AipSpeech(APP_ID, API_KEY, SECRET_KEY);
 
         // 可选：设置网络连接参数
@@ -57,6 +58,7 @@ public class V2Timpl implements V2T {
         String originalAudio = resoucesPath+"static\\"+title+".wav";
         Util.writeBytesToFileSystem(data,originalAudio);
         Integer segments = AudioSplitUtil.SplitAudio(originalAudio);
+        int count=0;
         for(int i=0;i<segments;i++){
             String segmentPath = resoucesPath+"static\\chunks\\"+String.format("%04d",i)+".wav";
             String tSegmentPath  = resoucesPath+"static\\chunks\\"+String.format("%04d",i)+".mpg";
@@ -75,6 +77,7 @@ public class V2Timpl implements V2T {
             System.out.println(res.get("err_msg"));
             String result = res.get("result").toString();
             String line = result.substring(2,result.length()-2);
+            count+=line.length();
             textBuffer.append(line);
             List<String> soundEffects = SoundEffect.VerifySE(line);
             int len = soundEffects.size();
@@ -95,9 +98,47 @@ public class V2Timpl implements V2T {
                     appendage++;
                 }
             }
+            if(count>1024||i>=segments-1){
+                OBGMOutPath = bgmOutPath;
+                bgmOutPath = resoucesPath+"static\\bgm\\"+"BGM"+bgmNo+".mp3";
+                System.out.println("here");
+                String measure = resoucesPath+"static\\bgm\\measure.mp3";
+                System.out.println("output: "+output);
+                FFMpegUtil.tickFormat(output,measure);
+                int currentLength = FFMpegUtil.getMp3TrackLength(new File(measure));
+                (new File(measure)).delete();
+                System.out.println(currentLength);
+                int bgmLength = currentLength - plannedLength;
+                Map<String,Integer> Analysis = EmotionAnalysis.parseText(line);
+                String sectionBGMName = correlationComputer.BGMPicker(Analysis);
+                BGMContent sectionBGMContent = bgmContentRepository.findByName(sectionBGMName);
+                String sectionBGMPath = resoucesPath+"static\\bgm\\"+sectionBGMName+".mp3";
+                Util.writeBytesToFileSystem(sectionBGMContent.getContent(),sectionBGMPath);
+                sectionBGMPath = FFMpegUtil.LowerVolumn(sectionBGMPath);
+                int sectionBGMLength = FFMpegUtil.getMp3TrackLength(new File(sectionBGMPath));
+                int times = (bgmLength / sectionBGMLength) + 1;
+                String newBGMPath = resoucesPath+"static\\bgm\\"+sectionBGMName+"_BGM.mp3";
+                BufferedOutputStream buos = new BufferedOutputStream(new FileOutputStream(new File(newBGMPath)));
+                for(int m=0;m<times;m++){
+                    buos.write(sectionBGMContent.getContent());
+                }
+                buos.flush();
+                buos.close();
+                String trimmedBGMPath = resoucesPath+"static\\bgm\\"+sectionBGMName+"_TBGM.mp3";
+                FFMpegUtil.cutAudio(newBGMPath,trimmedBGMPath,bgmLength);
+                if(plannedLength==0){
+                    FFMpegUtil.cutAudio(trimmedBGMPath,bgmOutPath,bgmLength);
+                }
+                else{
+                    FFMpegUtil.concatenator(OBGMOutPath,trimmedBGMPath,bgmOutPath);
+                }
+                bgmNo++;
+                plannedLength = currentLength;
+                count=0;
+            }
         }
         FFMpegUtil.tickFormat(output,product);
-        Map<String,Integer> report = EmotionAnalysis.parseText(textBuffer.toString());
+        /*
         String bgmName = correlationComputer.BGMPicker(report);
         BGMContent bgmContent = bgmContentRepository.findByName(bgmName);
         System.out.println(bgmContent.getName());
@@ -124,15 +165,18 @@ public class V2Timpl implements V2T {
         buos.flush();
         buos.close();
         RWFOS.close();
+        */
         String outPath = resoucesPath+"static\\"+title+"_With_BGM"+".mp3";
         System.out.println("Convertor entered");
-        FFMpegUtil.convetor(product, newBGPath,outPath);
+        FFMpegUtil.convetor(product, bgmOutPath,outPath);
         System.out.println("Convertor done.");
         System.out.println(textBuffer.toString());
         BOS.write(textBuffer.toString().getBytes());
         BOS.flush();
         BOS.close();
         response.put("res","done.");
+        System.out.println();
+        response.put("path",outPath);
         return response;
     }
 }

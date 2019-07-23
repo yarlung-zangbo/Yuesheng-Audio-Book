@@ -28,6 +28,7 @@ public class CorrelationComputer {
         Collections.shuffle(BGMNames);
         Pair<String,Integer> chosen = new Pair<String,Integer>("",1<<31);
         int Nsize = BGMNames.size();
+        List<EmotionMap> EMMappings = emotionMapRepository.findAll();
         for(int i=0;i<Nsize;i++) {
             int score=0;
             String name = BGMNames.get(i).getName();
@@ -35,6 +36,14 @@ public class CorrelationComputer {
             int Msize = BGMMappings.size();
             for(int j=0;j<Msize;j++) {
                 String mood = BGMMappings.get(j).getKey().getMood();
+                Map<EmotionMapKey,EmotionMap> moodMappings = new HashMap<>();
+                int length = EMMappings.size();
+                for(int k=0;k<length;k++){
+                    EmotionMap EM = EMMappings.get(k);
+                    if(EM.getEmotionMapKey().getMood().equals(mood)){
+                        moodMappings.put(EM.getEmotionMapKey(),EM);
+                    }
+                }
                 Iterator iterator = report.entrySet().iterator();
                 while (iterator.hasNext()) {
                     Map.Entry entry = (Map.Entry) iterator.next();
@@ -42,7 +51,7 @@ public class CorrelationComputer {
                     EmotionMapKey EMK = new EmotionMapKey();
                     EMK.setMood(mood);
                     EMK.setSense(sense);
-                    int relevancy = emotionMapRepository.findByEmotionMapKey(EMK).getRelevancy();
+                    int relevancy= moodMappings.get(EMK).getRelevancy();
                     score+=relevancy*Integer.valueOf(entry.getValue().toString());
                 }
             }

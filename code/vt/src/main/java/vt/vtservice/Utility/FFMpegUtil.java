@@ -11,11 +11,11 @@ import java.util.List;
 public class FFMpegUtil {
     private static String ffmpegEXE = "ffmpeg";
 
-    /*public static void main(String[] args) throws Exception {
-        //concatenator("D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\0.mpg","D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\static\\3.mpg","D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\tv\\src\\main\\resources\\风1.mp3");
+    public static void main(String[] args) throws Exception {
+        tickFormat("D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\vt\\src\\main\\resources\\static\\动物5.mpg","D:\\SEI\\week19\\YueSheng\\Yuesheng-Audio-Book\\code\\vt\\src\\main\\resources\\static\\bgm\\measure.mp3");
         System.out.println("success!");
     }
-    */
+
     /**
      * @param audioInputPath1 音频1的路径
      * @param audioInputPath2 音频2的路径
@@ -181,6 +181,45 @@ public class FFMpegUtil {
             e.printStackTrace();
         }
         return result;
+    }
+    public static void cutAudio(String input,String output,Integer time){
+        List<String> command = new ArrayList<String>();
+        command.add(ffmpegEXE);
+        command.add("-y");
+        command.add("-i");
+        command.add(input);
+        command.add("-ss");
+        command.add("0");
+        command.add("-t");
+        command.add(time.toString());
+        command.add(output);
+        ProcessBuilder builder = new ProcessBuilder(command);
+        Process process = null;
+        try {
+            process = builder.start();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        // 对流进行处理
+        InputStream errorStream = process.getErrorStream();
+        InputStreamReader inputStreamReader = new InputStreamReader(errorStream);
+        BufferedReader br = new BufferedReader(inputStreamReader);
+        try {
+            String line = "";
+            while ((line = br.readLine()) != null) {
+            }
+            if (br != null) {
+                br.close();
+            }
+            if (inputStreamReader != null) {
+                inputStreamReader.close();
+            }
+            if (errorStream != null) {
+                errorStream.close();
+            }
+        }
+        catch (Exception E){}
     }
     public static int getMp3TrackLength(File mp3File) {
         try {
