@@ -5,10 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import yuesheng.tv.DAO.SoundDao;
-import yuesheng.tv.Entity.TextAudio;
-import yuesheng.tv.Repository.TextAudioRepository;
+import yuesheng.tv.DAO.SoundbookDao;
+import yuesheng.tv.DAO.UserDao;
+import yuesheng.tv.Entity.Audio;
+import yuesheng.tv.Entity.Sound;
+import yuesheng.tv.Entity.Soundbook;
+import yuesheng.tv.Entity.User;
+import yuesheng.tv.Repository.AudioRepository;
 import yuesheng.tv.Service.T2V;
 import yuesheng.tv.Utility.FFMpegUtil;
+import yuesheng.tv.Utility.TimeTool;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,13 +27,25 @@ import java.util.Map;
 @RequestMapping("/T2V")
 public class T2VController {
     @Autowired
-    TextAudioRepository textAudioRepository;
+    AudioRepository audioRepository;
     @Autowired
     SoundDao soundDao;
     @Autowired
     T2V t2v;
+    @Autowired
+    SoundbookDao soundbookDao;
+    @Autowired
+    UserDao userDao;
     @PostMapping(value = "/getaudio")
-    public Map<String,Object> T2V(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("BookId")Integer bookid, @RequestParam(required = false,value= "per") Integer person){
+    public Map<String,Object> T2V(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("BookId")Integer bookid, @RequestParam(required = false,value= "per") Integer person,
+                                  @RequestParam("username") String userName,@RequestParam("name") String name){
+        /*User user = userDao.findByUsername(userName);
+        Soundbook soundbook = new Soundbook();
+        soundbook.setBookId(bookid);
+        soundbook.setCreater(user);
+        soundbook.setCreateTime(TimeTool.now());
+        soundbook.setName(name);
+        soundbookDao.save(soundbook);*/
         Map<String,Object> response = new HashMap();
         System.out.println(title);
         if(person==null) person = 3;
@@ -60,7 +78,7 @@ public class T2VController {
         if(res.get("res").equals("success")) {
             File audio = new File(res.get("Path").toString());
             byte[] audioBytes = FFMpegUtil.getBytes(audio);
-            TextAudio TA = new TextAudio();
+            Audio TA = new Audio();
             TA.setBookId(bookid);
             TA.setAudio(audioBytes);
             try {
@@ -71,7 +89,7 @@ public class T2VController {
                 response.put("response","failure occurred");
                 return response;
             }
-            textAudioRepository.save(TA);
+            audioRepository.save(TA);
             response.put("reponse","Success");
             return response;
         }

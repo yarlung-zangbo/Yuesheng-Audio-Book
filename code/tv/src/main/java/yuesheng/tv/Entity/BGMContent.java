@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 
 @Data
-@Document(collection = "bgm")
+@Document(collection = "bgms")
 public class BGMContent {
     @Id
     private String name;

@@ -6,10 +6,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import vt.vtservice.Entity.AudioAduio;
-import vt.vtservice.Repository.AudioAudioRepository;
+import vt.vtservice.DAO.SoundbookDao;
+import vt.vtservice.DAO.UserDao;
+import vt.vtservice.Entity.Aduio;
+import vt.vtservice.Entity.Soundbook;
+import vt.vtservice.Entity.User;
+import vt.vtservice.Repository.AudioRepository;
 import vt.vtservice.Service.V2T;
 import vt.vtservice.Utility.FFMpegUtil;
+import vt.vtservice.Utility.TimeTool;
 
 
 import java.io.BufferedInputStream;
@@ -24,10 +29,22 @@ public class V2TController {
     @Autowired
     V2T v2T;
     @Autowired
-    AudioAudioRepository audioAudioRepository;
+    AudioRepository audioRepository;
+    @Autowired
+    UserDao userDao;
+    @Autowired
+    SoundbookDao soundbookDao;
     @PostMapping(value = "/gettext")
-    public Map<String,Object> V2T(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("bookId")int bookId){
+    public Map<String,Object> V2T(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("bookId")int bookId,@RequestParam("username")String username,
+                                  @RequestParam("name")String name){
         Map<String,Object> res = new HashMap<>();
+        User user = userDao.findByUsername(username);
+        Soundbook soundbook = new Soundbook();
+        soundbook.setBookId(bookId);
+        soundbook.setName(name);
+        soundbook.setCreater(user);
+        soundbook.setCreateTime(TimeTool.now());
+        soundbookDao.save(soundbook);
         try {
             BufferedInputStream BIS = new BufferedInputStream(file.getInputStream());
             ByteArrayOutputStream BAOS = new ByteArrayOutputStream();
@@ -40,11 +57,11 @@ public class V2TController {
             res = v2T.V2T(data,title);
             File audio = new File(res.get("path").toString());
             byte[] audioBytes = FFMpegUtil.getBytes(audio);
-            AudioAduio audioAduio = new AudioAduio();
+            Aduio audioAduio = new Aduio();
             audioAduio.setAudio(audioBytes);
             audioAduio.setBaseAudio(data);
             audioAduio.setBookId(bookId);
-            audioAudioRepository.save(audioAduio);
+            audioRepository.save(audioAduio);
             System.out.println(audioAduio.getBookId());
         }
         catch (Exception e){

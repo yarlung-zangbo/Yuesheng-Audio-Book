@@ -4,5 +4,5 @@ import yuesheng.tv.Entity.Sound;
 
 public interface SoundDao {
     public Sound findByName(String name);
-    public void insertSound(Sound sounc);
+    public void insertSound(Sound sound);
 }

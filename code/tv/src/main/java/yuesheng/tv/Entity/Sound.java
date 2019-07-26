@@ -4,7 +4,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 
 
-@Document(collection="sound")
+@Document(collection="sounds")
 public class Sound {
     @Id
     private String name;

@@ -179,35 +179,6 @@ public class T2Vimpl implements T2V {
             try {
                 String tick = resoucesPath+title+".mp3";
                 FFMpegUtil.tickFormat(voicepath,tick);
-              /*
-                System.out.println(bgmName);
-                BGMContent bgmContent = bgmContentRepository.findByName(bgmName);
-                System.out.println(bgmContent.getName());
-                String bgmPath = resoucesPath+"static\\bgm\\"+bgmName+".mp3";
-                Util.writeBytesToFileSystem(bgmContent.getContent(),bgmPath);
-                bgmPath = FFMpegUtil.LowerVolumn(bgmPath);
-                File read = new File(tick);
-                File bg = new File(bgmPath);
-                int readLength = FFMpegUtil.getMp3TrackLength(read);
-                System.out.println("Audio file length: "+ readLength);
-                int bgLength = FFMpegUtil.getMp3TrackLength(bg);
-                System.out.println("readLength: "+readLength+", "+"bgLength: "+bgLength);
-                byte[] bgBytes = FFMpegUtil.getBytes(bg);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
-                String newBGPath = resoucesPath+"\\static\\bgm"+bgmName+"_BG"+".mp3";
-                File reWrite = new File(newBGPath);
-                FileOutputStream RWFOS = new FileOutputStream(reWrite,false);
-                BufferedOutputStream buos = new BufferedOutputStream(RWFOS);
-                int times = (readLength / bgLength)+1;
-                for(int i = 0; i<times; i++){
-                    System.out.println("i: " + i);
-                    buos.write(bgBytes);
-                }
-                buos.flush();
-                buos.close();
-                RWFOS.close();
-
-     */
                 String outPath = resoucesPath+title+"_With_BGM"+".mp3";
                 System.out.println("Convertor entered");
                 FFMpegUtil.convetor(tick, bgmOutPath,outPath);
