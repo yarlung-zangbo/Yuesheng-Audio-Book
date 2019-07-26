@@ -33,5 +33,7 @@ public class MarkDaoImpl implements MarkDao {
     }
 
     @Override
-    public List<Object> getAllMarkRecord(int limit){return markRepository.getAllMarkRecord(limit);}
+    public List<Object> getAllMarkRecord(int limit) {
+        return markRepository.getAllMarkRecord(limit);
+    }
 }

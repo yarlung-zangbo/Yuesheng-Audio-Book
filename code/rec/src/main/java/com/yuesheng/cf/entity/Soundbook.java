@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.yuesheng.cf.tool.FloatFormat;
 
-
 import javax.persistence.*;
 import java.util.List;
 

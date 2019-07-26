@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 public class RecMap {
-    private static Map<String, ArrayList<Integer>> LoadData(List<Object> markList) {
-        Map<String, ArrayList<Integer>> trainDict = new HashMap<>();
+    private static Map<String, ArrayList<Integer>> LoadData(List<Object> markList, Map<String, ArrayList<Integer>> trainDict) {
+        if (markList == null) return null;
 
         for (Object obj : markList) {
             Object[] arr = (Object[]) obj;
@@ -18,7 +18,10 @@ public class RecMap {
     }
 
     public static Map<Integer, Map<Integer, Double>> GetRecMap(List<Object> markList, Map<String, ArrayList<Integer>> trainDict) {
-        trainDict = LoadData(markList);
+        if (markList == null || markList.isEmpty()) return null;
+
+        LoadData(markList, trainDict);
+        if (trainDict == null || trainDict.isEmpty()) return null;
 
         Map<Integer, Integer> itemCnt = new HashMap<>();
         Map<Integer, Map<Integer, Integer>> itemMatrix = new HashMap<>();

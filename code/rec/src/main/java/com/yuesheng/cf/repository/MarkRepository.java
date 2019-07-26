@@ -1,11 +1,10 @@
 package com.yuesheng.cf.repository;
 
-import com.mysql.cj.xdevapi.JsonArray;
 import com.yuesheng.cf.entity.Mark;
+import com.yuesheng.cf.entity.Soundbook;
 import com.yuesheng.cf.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import com.yuesheng.cf.entity.Soundbook;
 
 import java.util.List;
 
