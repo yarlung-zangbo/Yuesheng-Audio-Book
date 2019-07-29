@@ -15,6 +15,7 @@ import yuesheng.tv.Service.T2V;
 import yuesheng.tv.Utility.*;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,28 +51,33 @@ public class T2Vimpl implements T2V {
 
         BufferedOutputStream ResBOS;
         String voicepath = "",integratedBGM,bgmOutPath = resoucesPath+"static/bgm/"+"BGM0.mp3",OBGMOutPath;
-        int bgmNo=0;
+        int bgmNo=0,currentLength = 0;
+        List<String> ChunkPaths = new ArrayList<>();
         try {
             int length = text.length(), i = 0, j = 0, resLength;
             text.replaceAll("\n"," ");
             System.out.println(length);
             int appendCount=0,count = 0,plannedLength = 0;
             while(i<length){
+                j=i;
+                char c = text.charAt(i);
+                while(i<length&&i-j<1024&&c!='。'&&c!='！'&&c!='？'&&c!='；'&&c!='…')
+                    c = text.charAt(i++);
+                if(i==j) {
+                    i++;
+                    continue;
+                }
                 String Ovoicepath = voicepath;
-                if(appendCount==0) voicepath = resoucesPath+title+appendCount+".mp3";
+                if(appendCount==0) voicepath = resoucesPath+title+"_"+bgmNo+"_"+appendCount+".mp3";
                 else {
                     voicepath = resoucesPath+"res.mp3";
                 }
                 File AudioFile = new File(voicepath);
                 FileOutputStream AudioOutput = new FileOutputStream(AudioFile, false);
                 ResBOS = new BufferedOutputStream(AudioOutput);
-                j=i;
-                char c = text.charAt(i);
-                while(i<length&&i-j<1024&&c!='。'&&c!='！'&&c!='？'&&c!='；'&&c!='…')
-                    c = text.charAt(i++);
-                System.out.println("i= "+i);
                 count+=i-j;
                 String excerpt = text.substring(j,i);
+                System.out.println(excerpt);
                 List<String> words = SoundEffect.VerifySE(excerpt);
                 HashMap<String,Object> options = new HashMap<String,Object>();
                 options.put("vol",13);
@@ -80,6 +86,7 @@ public class T2Vimpl implements T2V {
                 TtsResponse res = client.synthesis(excerpt, "zh", 1, options);
                 System.out.println("Api returned");
                 byte[] ResponseB = res.getData();
+                System.out.println(ResponseB.length);
                 ResBOS.write(ResponseB,0,ResponseB.length);
                 ResBOS.flush();
                 ResBOS.close();
@@ -89,14 +96,14 @@ public class T2Vimpl implements T2V {
                     tick2 = resoucesPath+"res.mpg";
                     FFMpegUtil.tickFormat(voicepath,tick2);
                     appendCount++;
-                    voicepath = resoucesPath+title+appendCount+".mpg";
+                    voicepath = resoucesPath+title+"_"+bgmNo+"_"+appendCount+".mpg";
                     FFMpegUtil.concatenator(Ovoicepath,tick2,voicepath);
                     File f2 = new File(Ovoicepath);
                     f2.delete();
                 }
                 else{
                     Ovoicepath = voicepath;
-                    voicepath = resoucesPath+title+appendCount+".mpg";
+                    voicepath = resoucesPath+title+"_"+bgmNo+"_"+appendCount+".mpg";
                     FFMpegUtil.tickFormat(Ovoicepath,voicepath);
                     File f = new File(Ovoicepath);
                     f.delete();
@@ -119,8 +126,7 @@ public class T2Vimpl implements T2V {
                         FFMpegUtil.tickFormat(found,tick2);
                         appendCount++;
                         Ovoicepath = voicepath;
-                        voicepath = resoucesPath+title+appendCount+".mpg";
-                        System.out.println("VoicePath: "+voicepath);
+                        voicepath = resoucesPath+title+"_"+bgmNo+"_"+appendCount+".mpg";
                         FFMpegUtil.concatenator(Ovoicepath,tick2,voicepath);
                         File f2 = new File(tick2);
                         File f3 = new File(Ovoicepath);
@@ -133,7 +139,7 @@ public class T2Vimpl implements T2V {
                     bgmOutPath = resoucesPath+"static/bgm/"+"BGM"+bgmNo+".mp3";
                     String measure = resoucesPath+"static/bgm/measure.mp3";
                     FFMpegUtil.tickFormat(voicepath,measure);
-                    int currentLength = FFMpegUtil.getMp3TrackLength(new File(measure));
+                    currentLength += FFMpegUtil.getMp3TrackLength(new File(measure));
                     (new File(measure)).delete();
                     System.out.println(currentLength);
                     int bgmLength = currentLength - plannedLength;
@@ -145,10 +151,11 @@ public class T2Vimpl implements T2V {
                     sectionBGMPath = FFMpegUtil.LowerVolumn(sectionBGMPath);
                     int sectionBGMLength = FFMpegUtil.getMp3TrackLength(new File(sectionBGMPath));
                     int times = (bgmLength / sectionBGMLength) + 1;
+                    byte[] lowered = FFMpegUtil.getBytes(new File(sectionBGMPath));
                     String newBGMPath = resoucesPath+"static/bgm/"+sectionBGMName+"_BGM.mp3";
                     BufferedOutputStream buos = new BufferedOutputStream(new FileOutputStream(new File(newBGMPath)));
                     for(int m=0;m<times;m++){
-                        buos.write(sectionBGMContent.getContent());
+                        buos.write(lowered);
                     }
                     buos.flush();
                     buos.close();
@@ -163,12 +170,26 @@ public class T2Vimpl implements T2V {
                     bgmNo++;
                     plannedLength = currentLength;
                     count=0;
+                    appendCount = 0;
+                    ChunkPaths.add(voicepath);
+                    System.out.println(voicepath);
                 }
                 JSONObject res1 = res.getResult();
                 if(res1!=null) {
                     System.out.println(res1.toString());
                 }
             }
+            int finalNo = 0;
+            String finalOutPath = resoucesPath+title+"_final_"+finalNo+".mpg";
+            Util.writeBytesToFileSystem(FFMpegUtil.getBytes(new File(ChunkPaths.get(0))),finalOutPath);
+            for(finalNo=1;finalNo<bgmNo;finalNo++){
+                String O = finalOutPath;
+                finalOutPath = resoucesPath+title+"_final_"+finalNo+".mpg";
+                FFMpegUtil.concatenator(O,ChunkPaths.get(finalNo),finalOutPath);
+                (new File(O)).delete();
+                (new File(ChunkPaths.get(finalNo))).delete();
+            }
+            voicepath = finalOutPath;
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
