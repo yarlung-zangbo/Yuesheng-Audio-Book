@@ -3,6 +3,7 @@ package com.yuesheng.cf.serviceimpl;
 import com.yuesheng.cf.dao.MarkDao;
 import com.yuesheng.cf.dao.SoundbookDao;
 import com.yuesheng.cf.dao.UserDao;
+import com.yuesheng.cf.entity.Soundbook;
 import com.yuesheng.cf.service.RecService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,18 @@ public class RecServiceImpl implements RecService {
     private static Map<Integer, Map<Integer, Double>> recMap;
     private static Map<String, ArrayList<Integer>> trainDict;
 
+    private ArrayList<Soundbook> convertInfo(ArrayList<Integer> idList) {
+        ArrayList<Soundbook> arr = new ArrayList<>();
+
+        int len = idList.size();
+        for (int i = 0; i < len; i++) {
+            Integer bookid = idList.get(i);
+            arr.add(soundbookDao.findByBookid(bookid));
+        }
+
+        return arr;
+    }
+
     @Override
     public void updateRecMap() {
         trainDict = new HashMap<>();
@@ -45,9 +58,9 @@ public class RecServiceImpl implements RecService {
     }
 
     @Override
-    public ArrayList<Integer> getRecList(String username) {
+    public ArrayList<Soundbook> getRecList(String username) {
         if (rankList == null) return null;
-        if (rankList.size() < rec_limit) return rankList;
+        if (rankList.size() < rec_limit) return convertInfo(rankList);
 
         ArrayList<Integer> recList = GetRecList(username, trainDict, recMap, sim_limit, rec_limit);
         if (recList == null) {
@@ -61,7 +74,7 @@ public class RecServiceImpl implements RecService {
                 recList.add(cnt++);
         }
 
-        return recList;
+        return convertInfo(recList);
     }
 
 }

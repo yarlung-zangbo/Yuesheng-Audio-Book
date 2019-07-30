@@ -13,6 +13,6 @@ public interface SoundbookRepository extends JpaRepository<Soundbook, Integer> {
 
     public List<Soundbook> findByReleasetimeLessThanAndNameContaining(String time, String name);
 
-    @Query(value = "select bookid from soundbook order by mark desc limit ?1", nativeQuery = true)
+    @Query(value = "select bookid from soundbook where releasetime < now() order by mark desc limit ?1", nativeQuery = true)
     public ArrayList<Object> getMarkRankList(int limit);
 }

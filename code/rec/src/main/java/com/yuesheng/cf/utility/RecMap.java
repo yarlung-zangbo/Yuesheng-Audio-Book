@@ -17,7 +17,8 @@ public class RecMap {
         return trainDict;
     }
 
-    public static Map<Integer, Map<Integer, Double>> GetRecMap(List<Object> markList, Map<String, ArrayList<Integer>> trainDict) {
+    public static Map<Integer, Map<Integer, Double>> GetRecMap(List<Object> markList,
+                                                               Map<String, ArrayList<Integer>> trainDict) {
         if (markList == null || markList.isEmpty()) return null;
 
         LoadData(markList, trainDict);
@@ -33,7 +34,7 @@ public class RecMap {
                 itemCnt.compute(i, (k, v) -> v + 1);
 
                 for (Integer j : entry.getValue()) {
-                    if (i.equals(j)) continue;
+                    if (i.intValue() == j.intValue()) continue;
                     itemMatrix.putIfAbsent(i, new HashMap<>());
                     itemMatrix.get(i).putIfAbsent(j, 0);
                     itemMatrix.get(i).compute(j, (k, v) -> v + 1);
