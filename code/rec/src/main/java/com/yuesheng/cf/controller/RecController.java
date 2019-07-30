@@ -1,5 +1,6 @@
 package com.yuesheng.cf.controller;
 
+import com.yuesheng.cf.entity.Soundbook;
 import com.yuesheng.cf.service.RecService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,16 +26,12 @@ public class RecController {
 
     @RequestMapping(value = "/getRecList", method = RequestMethod.GET)
     @ResponseBody
-    public ArrayList<Integer> getRecListController(@RequestParam("username") String username) {
-        if (!username.isEmpty()) {
-            long current_update = System.currentTimeMillis();
-            if (current_update - last_update > interval) {
-                recService.updateRecMap();
-                last_update = current_update;
-            }
-            return recService.getRecList(username);
-        } else {
-            return null;
+    public ArrayList<Soundbook> getRecListController(@RequestParam("username") String username) {
+        long current_update = System.currentTimeMillis();
+        if (current_update - last_update > interval) {
+            recService.updateRecMap();
+            last_update = current_update;
         }
+        return recService.getRecList(username);
     }
 }
