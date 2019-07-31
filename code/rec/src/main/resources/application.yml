@@ -1,0 +1,7 @@
+server:
+  port: 8091
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://49.234.78.95:10000/eureka/
+eureka.instance.prefer-ip-address: true
