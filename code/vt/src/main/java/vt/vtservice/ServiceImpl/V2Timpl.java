@@ -4,6 +4,7 @@ import com.baidu.aip.speech.AipSpeech;
 import com.baidu.aip.util.Util;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vt.vtservice.DAO.SoundDao;
 import vt.vtservice.Entity.BGMContent;
@@ -17,13 +18,15 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class V2Timpl implements V2T {
-    static String resoucesPath = "src\\main\\resources\\";
+    @Value("${resourcesPath}")
+    String resourcesPath;
     public static final String APP_ID = "16682530";
     public static final String API_KEY = "AHo1rGgmZy29ULcCPyBVxcrY";
     public static final String SECRET_KEY = "rtwOSBH7kEjoVrghtfW52MNsWqLupi9Z";
@@ -37,36 +40,42 @@ public class V2Timpl implements V2T {
     @Override
     public Map<String,Object> V2T(byte[] data,String title) throws Exception{
         // 初始化一个AipSpeech
-        String product =  resoucesPath+"static\\"+title+".mp3";
-        String output = resoucesPath+"static\\"+title+0+".mpg",OOutput = output;
-        String bgmOutPath = resoucesPath+"static\\bgm\\"+"BGM0.mp3",OBGMOutPath;
+        System.out.println(resourcesPath);
+        String product =  resourcesPath+"static/process/"+title+".mp3";
+        String output = resourcesPath+"static/process/"+title+"_0_0"+".mpg",OOutput = output;
+        String bgmOutPath = resourcesPath+"static/bgm/"+"BGM0.mp3",OBGMOutPath;
         StringBuffer textBuffer=new StringBuffer();
+        System.out.println("22");
         int appendage=0,bgmNo=0,plannedLength=0;
+        List<String> ChunkPaths = new ArrayList<>();
         AipSpeech client = new AipSpeech(APP_ID, API_KEY, SECRET_KEY);
+        System.out.println("22");
 
         // 可选：设置网络连接参数
         client.setConnectionTimeoutInMillis(2000);
         client.setSocketTimeoutInMillis(60000);
         Map<String,Object> response = new HashMap<>();
-
+        System.out.println("22");
         // 可选：设置log4j日志输出格式，若不设置，则使用默认配置
         // 也可以直接通过jvm启动参数设置此环境变量
-        System.setProperty("aip.log4j.conf", resoucesPath);
-        BufferedOutputStream BOS = new BufferedOutputStream(new FileOutputStream(new File(resoucesPath+title+".txt")));
+        System.setProperty("aip.log4j.conf", resourcesPath+"log4j.properties");
+        BufferedOutputStream BOS = new BufferedOutputStream(new FileOutputStream(new File(resourcesPath+title+".txt")));
         int length = data.length, ptr = 0, step = 0;
         System.out.println("length: "+length);
-        String originalAudio = resoucesPath+"static\\"+title+".wav";
+        String originalAudio = resourcesPath+"static/process/"+title+".wav";
         Util.writeBytesToFileSystem(data,originalAudio);
-        Integer segments = AudioSplitUtil.SplitAudio(originalAudio);
+        Integer segments = AudioSplitUtil.SplitAudio(originalAudio,resourcesPath);
         int count=0;
+        System.out.println("printing segments");
         for(int i=0;i<segments;i++){
-            String segmentPath = resoucesPath+"static\\chunks\\"+String.format("%04d",i)+".wav";
-            String tSegmentPath  = resoucesPath+"static\\chunks\\"+String.format("%04d",i)+".mpg";
+            output = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendage+".mpg";
+            String segmentPath = resourcesPath+"static/process/chunks/"+String.format("%04d",i)+".wav";
+            String tSegmentPath  = resourcesPath+"static/process/chunks/"+String.format("%04d",i)+".mpg";
             FFMpegUtil.tickFormat(segmentPath,tSegmentPath);
             if(appendage==0) FFMpegUtil.tickFormat(tSegmentPath,output);
             else {
                 OOutput = output;
-                output = resoucesPath+"static\\"+title+appendage+".wav";
+                output = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendage+".wav";
                 FFMpegUtil.concatenator(OOutput,tSegmentPath,output);
                 (new File(OOutput)).delete();
             }
@@ -79,19 +88,19 @@ public class V2Timpl implements V2T {
             String line = result.substring(2,result.length()-2);
             count+=line.length();
             textBuffer.append(line);
-            List<String> soundEffects = SoundEffect.VerifySE(line);
+            List<String> soundEffects = SoundEffect.VerifySE(line,resourcesPath);
             int len = soundEffects.size();
             for(int j=0;j<len;j++){
                 Sound sound = soundDao.findByName(soundEffects.get(j));
                 if(sound!=null){
                     System.out.println(sound.getName()+" found and added.");
                     byte[] soundEffect = sound.getContent();
-                    String soundEffectPath = resoucesPath+"static\\soundeffects\\"+sound.getName()+".mp3";
+                    String soundEffectPath = resourcesPath+"static\\soundeffects\\"+sound.getName()+".mp3";
                     String tSoundEffectPath = soundEffectPath.substring(0,soundEffectPath.length()-4)+".mpg";
                     Util.writeBytesToFileSystem(soundEffect,soundEffectPath);
                     FFMpegUtil.tickFormat(soundEffectPath,tSoundEffectPath);
                     OOutput = output;
-                    output = resoucesPath+"static\\"+title+appendage+".mpg";
+                    output = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendage+".mpg";
                     FFMpegUtil.concatenator(OOutput,tSoundEffectPath,output);
                     (new File(OOutput)).delete();
                     (new File(soundEffectPath)).delete();
@@ -100,9 +109,9 @@ public class V2Timpl implements V2T {
             }
             if(count>1024||i>=segments-1){
                 OBGMOutPath = bgmOutPath;
-                bgmOutPath = resoucesPath+"static\\bgm\\"+"BGM"+bgmNo+".mp3";
+                bgmOutPath = resourcesPath+"static\\bgm\\"+"BGM"+bgmNo+".mp3";
                 System.out.println("here");
-                String measure = resoucesPath+"static\\bgm\\measure.mp3";
+                String measure = resourcesPath+"static\\bgm\\measure.mp3";
                 System.out.println("output: "+output);
                 FFMpegUtil.tickFormat(output,measure);
                 int currentLength = FFMpegUtil.getMp3TrackLength(new File(measure));
@@ -112,19 +121,19 @@ public class V2Timpl implements V2T {
                 Map<String,Integer> Analysis = EmotionAnalysis.parseText(line);
                 String sectionBGMName = correlationComputer.BGMPicker(Analysis);
                 BGMContent sectionBGMContent = bgmContentRepository.findByName(sectionBGMName);
-                String sectionBGMPath = resoucesPath+"static\\bgm\\"+sectionBGMName+".mp3";
+                String sectionBGMPath = resourcesPath+"static\\bgm\\"+sectionBGMName+".mp3";
                 Util.writeBytesToFileSystem(sectionBGMContent.getContent(),sectionBGMPath);
                 sectionBGMPath = FFMpegUtil.LowerVolumn(sectionBGMPath);
                 int sectionBGMLength = FFMpegUtil.getMp3TrackLength(new File(sectionBGMPath));
                 int times = (bgmLength / sectionBGMLength) + 1;
-                String newBGMPath = resoucesPath+"static\\bgm\\"+sectionBGMName+"_BGM.mp3";
+                String newBGMPath = resourcesPath+"static\\bgm\\"+sectionBGMName+"_BGM.mp3";
                 BufferedOutputStream buos = new BufferedOutputStream(new FileOutputStream(new File(newBGMPath)));
                 for(int m=0;m<times;m++){
                     buos.write(sectionBGMContent.getContent());
                 }
                 buos.flush();
                 buos.close();
-                String trimmedBGMPath = resoucesPath+"static\\bgm\\"+sectionBGMName+"_TBGM.mp3";
+                String trimmedBGMPath = resourcesPath+"static\\bgm\\"+sectionBGMName+"_TBGM.mp3";
                 FFMpegUtil.cutAudio(newBGMPath,trimmedBGMPath,bgmLength);
                 if(plannedLength==0){
                     FFMpegUtil.cutAudio(trimmedBGMPath,bgmOutPath,bgmLength);
@@ -135,10 +144,23 @@ public class V2Timpl implements V2T {
                 bgmNo++;
                 plannedLength = currentLength;
                 count=0;
+                ChunkPaths.add(output);
+                appendage=0;
             }
         }
+        int finalNo = 0;
+        String finalOutPath = resourcesPath+"static/process/"+title+"_final_"+finalNo+".mpg";
+        Util.writeBytesToFileSystem(FFMpegUtil.getBytes(new File(ChunkPaths.get(0))),finalOutPath);
+        for(finalNo=1;finalNo<bgmNo;finalNo++){
+            String O = finalOutPath;
+            finalOutPath = resourcesPath+"static/process/"+title+"_final_"+finalNo+".mpg";
+            FFMpegUtil.concatenator(O,ChunkPaths.get(finalNo),finalOutPath);
+            (new File(O)).delete();
+            (new File(ChunkPaths.get(finalNo))).delete();
+        }
+        output = finalOutPath;
         FFMpegUtil.tickFormat(output,product);
-        String outPath = resoucesPath+"static\\"+title+"_With_BGM"+".mp3";
+        String outPath = resourcesPath+title+"_With_BGM"+".mp3";
         System.out.println("Convertor entered");
         FFMpegUtil.convetor(product, bgmOutPath,outPath);
         System.out.println("Convertor done.");
@@ -146,6 +168,9 @@ public class V2Timpl implements V2T {
         BOS.write(textBuffer.toString().getBytes());
         BOS.flush();
         BOS.close();
+        Janitor.deleteDir(resourcesPath+"static/bgm");
+        Janitor.deleteDir(resourcesPath+"static/soundeffects");
+        Janitor.deleteDir(resourcesPath+"static/process");
         response.put("res","done.");
         System.out.println();
         response.put("path",outPath);

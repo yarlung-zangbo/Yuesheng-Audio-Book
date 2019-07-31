@@ -6,6 +6,7 @@ import com.baidu.aip.util.Util;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import yuesheng.tv.DAO.SoundDao;
 import yuesheng.tv.Entity.BGMContent;
@@ -31,8 +32,12 @@ public class T2Vimpl implements T2V {
     CorrelationComputer correlationComputer;
     @Autowired
     BGMContentRepository bgmContentRepository;
+
+    @Value("${resourcesPath}")
+    String resourcesPath;
     @Override
     public Map<String, Object> TextToAudioBinary(String text, String title, Integer person) {
+        ContextBuilder.buildContext(resourcesPath);
         // 初始化一个AipSpeech
         AipSpeech client = new AipSpeech(APP_ID, API_KEY, SECRET_KEY);
         // 可选：设置网络连接参数
@@ -44,13 +49,12 @@ public class T2Vimpl implements T2V {
 
         // 可选：设置log4j日志输出格式，若不设置，则使用默认配置
         // 也可以直接通过jvm启动参数设置此环境变量
-        String resoucesPath = "src/main/resources/";
-        System.setProperty("aip.log4j.conf", resoucesPath+"log4j.properties");
+        System.setProperty("aip.log4j.conf", resourcesPath+"log4j.properties");
 
         // 调用接口
 
         BufferedOutputStream ResBOS;
-        String voicepath = "",integratedBGM,bgmOutPath = resoucesPath+"static/bgm/"+"BGM0.mp3",OBGMOutPath;
+        String voicepath = "",integratedBGM,bgmOutPath = resourcesPath+"static/bgm/"+"BGM0.mp3",OBGMOutPath;
         int bgmNo=0,currentLength = 0;
         List<String> ChunkPaths = new ArrayList<>();
         try {
@@ -68,9 +72,9 @@ public class T2Vimpl implements T2V {
                     continue;
                 }
                 String Ovoicepath = voicepath;
-                if(appendCount==0) voicepath = resoucesPath+title+"_"+bgmNo+"_"+appendCount+".mp3";
+                if(appendCount==0) voicepath = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendCount+".mp3";
                 else {
-                    voicepath = resoucesPath+"res.mp3";
+                    voicepath = resourcesPath+"static/process/"+"res.mp3";
                 }
                 File AudioFile = new File(voicepath);
                 FileOutputStream AudioOutput = new FileOutputStream(AudioFile, false);
@@ -78,7 +82,7 @@ public class T2Vimpl implements T2V {
                 count+=i-j;
                 String excerpt = text.substring(j,i);
                 System.out.println(excerpt);
-                List<String> words = SoundEffect.VerifySE(excerpt);
+                List<String> words = SoundEffect.VerifySE(excerpt,resourcesPath);
                 HashMap<String,Object> options = new HashMap<String,Object>();
                 options.put("vol",13);
                 options.put("per",person);
@@ -93,17 +97,17 @@ public class T2Vimpl implements T2V {
                 AudioOutput.close();
                 if(appendCount!=0){
                     String tick2;
-                    tick2 = resoucesPath+"res.mpg";
+                    tick2 = resourcesPath+"static/process/"+"res.mpg";
                     FFMpegUtil.tickFormat(voicepath,tick2);
                     appendCount++;
-                    voicepath = resoucesPath+title+"_"+bgmNo+"_"+appendCount+".mpg";
+                    voicepath = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendCount+".mpg";
                     FFMpegUtil.concatenator(Ovoicepath,tick2,voicepath);
                     File f2 = new File(Ovoicepath);
                     f2.delete();
                 }
                 else{
                     Ovoicepath = voicepath;
-                    voicepath = resoucesPath+title+"_"+bgmNo+"_"+appendCount+".mpg";
+                    voicepath = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendCount+".mpg";
                     FFMpegUtil.tickFormat(Ovoicepath,voicepath);
                     File f = new File(Ovoicepath);
                     f.delete();
@@ -116,17 +120,17 @@ public class T2Vimpl implements T2V {
                         byte[] soundEffect = sound.getContent();
                         System.out.println(soundEffect.length);
                         System.out.println(sound.getName()+" found and added.");
-                        String found = resoucesPath+"static\\soundeffects\\"+sound.getName()+".mp3";
+                        String found = resourcesPath+"static\\soundeffects\\"+sound.getName()+".mp3";
                         try{
                             Util.writeBytesToFileSystem(sound.getContent(),found);
                         }
                         catch (Exception e) { }
                         String tick2;
-                        tick2 = resoucesPath+"static\\soundeffects\\"+appendCount+"_"+l+".mpg";
+                        tick2 = resourcesPath+"static\\soundeffects\\"+appendCount+"_"+l+".mpg";
                         FFMpegUtil.tickFormat(found,tick2);
                         appendCount++;
                         Ovoicepath = voicepath;
-                        voicepath = resoucesPath+title+"_"+bgmNo+"_"+appendCount+".mpg";
+                        voicepath = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendCount+".mpg";
                         FFMpegUtil.concatenator(Ovoicepath,tick2,voicepath);
                         File f2 = new File(tick2);
                         File f3 = new File(Ovoicepath);
@@ -136,8 +140,8 @@ public class T2Vimpl implements T2V {
                 }
                 if(count>1024||i>=length) {
                     OBGMOutPath = bgmOutPath;
-                    bgmOutPath = resoucesPath+"static/bgm/"+"BGM"+bgmNo+".mp3";
-                    String measure = resoucesPath+"static/bgm/measure.mp3";
+                    bgmOutPath = resourcesPath+"static/bgm/"+"BGM"+bgmNo+".mp3";
+                    String measure = resourcesPath+"static/bgm/measure.mp3";
                     FFMpegUtil.tickFormat(voicepath,measure);
                     currentLength += FFMpegUtil.getMp3TrackLength(new File(measure));
                     (new File(measure)).delete();
@@ -146,20 +150,20 @@ public class T2Vimpl implements T2V {
                     Map<String,Integer> Analysis = EmotionAnalysis.parseText(text.substring(i-count,i));
                     String sectionBGMName = correlationComputer.BGMPicker(Analysis);
                     BGMContent sectionBGMContent = bgmContentRepository.findByName(sectionBGMName);
-                    String sectionBGMPath = resoucesPath+"static/bgm/"+sectionBGMName+".mp3";
+                    String sectionBGMPath = resourcesPath+"static/bgm/"+sectionBGMName+".mp3";
                     Util.writeBytesToFileSystem(sectionBGMContent.getContent(),sectionBGMPath);
                     sectionBGMPath = FFMpegUtil.LowerVolumn(sectionBGMPath);
                     int sectionBGMLength = FFMpegUtil.getMp3TrackLength(new File(sectionBGMPath));
                     int times = (bgmLength / sectionBGMLength) + 1;
                     byte[] lowered = FFMpegUtil.getBytes(new File(sectionBGMPath));
-                    String newBGMPath = resoucesPath+"static/bgm/"+sectionBGMName+"_BGM.mp3";
+                    String newBGMPath = resourcesPath+"static/bgm/"+sectionBGMName+"_BGM.mp3";
                     BufferedOutputStream buos = new BufferedOutputStream(new FileOutputStream(new File(newBGMPath)));
                     for(int m=0;m<times;m++){
                         buos.write(lowered);
                     }
                     buos.flush();
                     buos.close();
-                    String trimmedBGMPath = resoucesPath+"static/bgm/"+sectionBGMName+"_TBGM.mp3";
+                    String trimmedBGMPath = resourcesPath+"static/bgm/"+sectionBGMName+"_TBGM.mp3";
                     FFMpegUtil.cutAudio(newBGMPath,trimmedBGMPath,bgmLength);
                     if(plannedLength==0){
                         FFMpegUtil.cutAudio(trimmedBGMPath,bgmOutPath,bgmLength);
@@ -180,11 +184,11 @@ public class T2Vimpl implements T2V {
                 }
             }
             int finalNo = 0;
-            String finalOutPath = resoucesPath+title+"_final_"+finalNo+".mpg";
+            String finalOutPath = resourcesPath+"static/process/"+title+"_final_"+finalNo+".mpg";
             Util.writeBytesToFileSystem(FFMpegUtil.getBytes(new File(ChunkPaths.get(0))),finalOutPath);
             for(finalNo=1;finalNo<bgmNo;finalNo++){
                 String O = finalOutPath;
-                finalOutPath = resoucesPath+title+"_final_"+finalNo+".mpg";
+                finalOutPath = resourcesPath+"static/process/"+title+"_final_"+finalNo+".mpg";
                 FFMpegUtil.concatenator(O,ChunkPaths.get(finalNo),finalOutPath);
                 (new File(O)).delete();
                 (new File(ChunkPaths.get(finalNo))).delete();
@@ -197,20 +201,26 @@ public class T2Vimpl implements T2V {
             res.put("res","failed");
             return res;
         }
-            try {
-                String tick = resoucesPath+title+".mp3";
-                FFMpegUtil.tickFormat(voicepath,tick);
-                String outPath = resoucesPath+title+"_With_BGM"+".mp3";
-                System.out.println("Convertor entered");
-                FFMpegUtil.convetor(tick, bgmOutPath,outPath);
-                System.out.println("Convertor done.");
-                HashMap<String, Object> res = new HashMap<>();
-                res.put("res","success");
-                res.put("Path",outPath);
-                return res;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            String tick = resourcesPath+"static/process/"+title+".mp3";
+            FFMpegUtil.tickFormat(voicepath,tick);
+            String outPath = resourcesPath+title+"_With_BGM"+".mp3";
+            System.out.println("Convertor entered");
+            FFMpegUtil.convetor(tick, bgmOutPath,outPath);
+            System.out.println("Convertor done.");
+            Janitor.deleteDir(resourcesPath+"static/bgm");
+            Janitor.deleteDir(resourcesPath+"static/soundeffects");
+            Janitor.deleteDir(resourcesPath+"static/process");
+            HashMap<String, Object> res = new HashMap<>();
+            res.put("res","success");
+            res.put("Path",outPath);
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Janitor.deleteDir(resourcesPath+"static/bgm");
+        Janitor.deleteDir(resourcesPath+"static/soundeffects");
+        Janitor.deleteDir(resourcesPath+"static/process");
         HashMap<String,Object> res = new HashMap<>();
         res.put("res","failed");
         return res;

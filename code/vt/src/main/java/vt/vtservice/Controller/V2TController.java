@@ -35,16 +35,16 @@ public class V2TController {
     @Autowired
     SoundbookDao soundbookDao;
     @PostMapping(value = "/gettext")
-    public Map<String,Object> V2T(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("bookId")int bookId,@RequestParam("username")String username,
-                                  @RequestParam("name")String name){
+    public Map<String,Object> V2T(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("bookId")int bookId,@RequestParam("username")String username
+                                  ){
         Map<String,Object> res = new HashMap<>();
-        User user = userDao.findByUsername(username);
+        /*User user = userDao.findByUsername(username);
         Soundbook soundbook = new Soundbook();
         soundbook.setBookId(bookId);
-        soundbook.setName(name);
+        soundbook.setName(title);
         soundbook.setCreater(user);
         soundbook.setCreateTime(TimeTool.now());
-        soundbookDao.save(soundbook);
+        soundbookDao.save(soundbook);*/
         try {
             BufferedInputStream BIS = new BufferedInputStream(file.getInputStream());
             ByteArrayOutputStream BAOS = new ByteArrayOutputStream();
@@ -54,6 +54,7 @@ public class V2TController {
                 BAOS.write(reader,0,input);
             }
             byte[] data = BAOS.toByteArray();
+            System.out.println("v2t");
             res = v2T.V2T(data,title);
             File audio = new File(res.get("path").toString());
             byte[] audioBytes = FFMpegUtil.getBytes(audio);

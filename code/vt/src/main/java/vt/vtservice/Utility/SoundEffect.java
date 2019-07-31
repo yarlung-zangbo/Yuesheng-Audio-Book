@@ -6,6 +6,7 @@ import com.hankcs.hanlp.dictionary.CoreDictionary;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
 import com.hankcs.hanlp.seg.common.Term;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.BufferedReader;
@@ -21,13 +22,15 @@ import java.util.List;
  */
 public class SoundEffect
 {
+    @Value("${resourcesPath}")
+    String resourcesPath;
     static int called = 0;
     static WordVectorModel wordVectorModel;
     static List<String> audioList = new ArrayList<>();  // 音效名的List
-    public static void initializer(){
+    public static void initializer(String resourcesPath){
         System.out.println("SoundEffect initializing.");
             try {
-                wordVectorModel = new WordVectorModel("src/main/resources/static/res.txt");
+                wordVectorModel = new WordVectorModel(resourcesPath+"/static/res.txt");
                 System.out.println("SoundEffect 1");
                 String str = null;
                 ClassPathResource file = new ClassPathResource("static/audio.dic");
@@ -43,7 +46,7 @@ public class SoundEffect
                 System.out.println(ex.toString());
             }
     }
-    public static List<String> VerifySE(String text) throws IOException {
+    public static List<String> VerifySE(String text,String resourcesPath) throws IOException {
 
         // AhoCorasickDoubleArrayTrie自动机扫描文本中出现的自定义词语
 
@@ -59,7 +62,7 @@ public class SoundEffect
 
         // 分词
         List<Term> parselist = HanLP.segment(text);
-        if(called==0) initializer();
+        if(called==0) initializer(resourcesPath);
         called+=1;
         List<String> soundEffects = new ArrayList<>();
         for(int i = 0 ; i < parselist.size() ; i++) {
