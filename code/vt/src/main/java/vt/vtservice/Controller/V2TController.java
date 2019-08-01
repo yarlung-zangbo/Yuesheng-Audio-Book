@@ -35,16 +35,16 @@ public class V2TController {
     @Autowired
     SoundbookDao soundbookDao;
     @PostMapping(value = "/gettext")
-    public Map<String,Object> V2T(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("bookId")int bookId,@RequestParam("username")String username
+    public Map<String,Object> V2T(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("username")String username
                                   ){
         Map<String,Object> res = new HashMap<>();
-        /*User user = userDao.findByUsername(username);
+        User user = userDao.findByUsername(username);
         Soundbook soundbook = new Soundbook();
-        soundbook.setBookId(bookId);
         soundbook.setName(title);
         soundbook.setCreater(user);
         soundbook.setCreateTime(TimeTool.now());
-        soundbookDao.save(soundbook);*/
+        soundbookDao.save(soundbook);
+        int bookId = soundbookDao.findByName(title).get(0).getBookId();
         try {
             BufferedInputStream BIS = new BufferedInputStream(file.getInputStream());
             ByteArrayOutputStream BAOS = new ByteArrayOutputStream();

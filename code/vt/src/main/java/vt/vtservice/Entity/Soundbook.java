@@ -71,7 +71,7 @@ public class Soundbook {
     }
 
     @Basic
-    @Column(name="release")
+    @Column(name="releasetime")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     public String getRealease() {
         return realease;

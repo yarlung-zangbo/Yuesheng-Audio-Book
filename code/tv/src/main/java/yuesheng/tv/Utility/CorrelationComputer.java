@@ -1,6 +1,6 @@
 package yuesheng.tv.Utility;
 
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import yuesheng.tv.Entity.BGM;
@@ -26,7 +26,7 @@ public class CorrelationComputer {
     public String BGMPicker(Map<String,Integer> report){
         List<BGMName> BGMNames = bgmNameRepository.findAll();
         Collections.shuffle(BGMNames);
-        Pair<String,Integer> chosen = new Pair<String,Integer>("",1<<31);
+        ImmutablePair<String,Integer> chosen = new ImmutablePair<>("",1<<31);
         int Nsize = BGMNames.size();
         List<EmotionMap> EMMappings = emotionMapRepository.findAll();
         for(int i=0;i<Nsize;i++) {
@@ -55,7 +55,7 @@ public class CorrelationComputer {
                     score+=relevancy*Integer.valueOf(entry.getValue().toString());
                 }
             }
-            if(score>chosen.getValue()) chosen = new Pair<String,Integer>(name,score);
+            if(score>chosen.getValue()) chosen = new ImmutablePair<>(name,score);
         }
         System.out.println(chosen.toString());
         return chosen.getKey();

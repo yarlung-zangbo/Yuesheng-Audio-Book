@@ -52,8 +52,8 @@ public class V2Timpl implements V2T {
         System.out.println("22");
 
         // 可选：设置网络连接参数
-        client.setConnectionTimeoutInMillis(2000);
-        client.setSocketTimeoutInMillis(60000);
+        client.setConnectionTimeoutInMillis(2000000);
+        client.setSocketTimeoutInMillis(6000000);
         Map<String,Object> response = new HashMap<>();
         System.out.println("22");
         // 可选：设置log4j日志输出格式，若不设置，则使用默认配置

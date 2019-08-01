@@ -41,15 +41,16 @@ public class T2Vimpl implements T2V {
         // 初始化一个AipSpeech
         AipSpeech client = new AipSpeech(APP_ID, API_KEY, SECRET_KEY);
         // 可选：设置网络连接参数
-        client.setConnectionTimeoutInMillis(2000);
-        client.setSocketTimeoutInMillis(60000);
+        System.out.println("api");
+        client.setConnectionTimeoutInMillis(2000000);
+        client.setSocketTimeoutInMillis(60000000);
         // 可选：设置代理服务器地址, http和socket二选一，或者均不设置
         //client.setHttpProxy("proxy_host", 80);  // 设置http代理
         //client.setSocketProxy("proxy_host", proxy_port);  // 设置socket代理
 
         // 可选：设置log4j日志输出格式，若不设置，则使用默认配置
         // 也可以直接通过jvm启动参数设置此环境变量
-        System.setProperty("aip.log4j.conf", resourcesPath+"log4j.properties");
+        System.setProperty("aip.log4j.conf", "log4j.properties");
 
         // 调用接口
 
@@ -101,7 +102,7 @@ public class T2Vimpl implements T2V {
                     FFMpegUtil.tickFormat(voicepath,tick2);
                     appendCount++;
                     voicepath = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendCount+".mpg";
-                    FFMpegUtil.concatenator(Ovoicepath,tick2,voicepath);
+                    FFMpegUtil.concatenator(Ovoicepath,tick2,voicepath,resourcesPath);
                     File f2 = new File(Ovoicepath);
                     f2.delete();
                 }
@@ -131,7 +132,7 @@ public class T2Vimpl implements T2V {
                         appendCount++;
                         Ovoicepath = voicepath;
                         voicepath = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendCount+".mpg";
-                        FFMpegUtil.concatenator(Ovoicepath,tick2,voicepath);
+                        FFMpegUtil.concatenator(Ovoicepath,tick2,voicepath,resourcesPath);
                         File f2 = new File(tick2);
                         File f3 = new File(Ovoicepath);
                         f2.delete();
@@ -169,7 +170,7 @@ public class T2Vimpl implements T2V {
                         FFMpegUtil.cutAudio(trimmedBGMPath,bgmOutPath,bgmLength);
                     }
                     else{
-                        FFMpegUtil.concatenator(OBGMOutPath,trimmedBGMPath,bgmOutPath);
+                        FFMpegUtil.concatenator(OBGMOutPath,trimmedBGMPath,bgmOutPath,resourcesPath);
                     }
                     bgmNo++;
                     plannedLength = currentLength;
@@ -189,7 +190,7 @@ public class T2Vimpl implements T2V {
             for(finalNo=1;finalNo<bgmNo;finalNo++){
                 String O = finalOutPath;
                 finalOutPath = resourcesPath+"static/process/"+title+"_final_"+finalNo+".mpg";
-                FFMpegUtil.concatenator(O,ChunkPaths.get(finalNo),finalOutPath);
+                FFMpegUtil.concatenator(O,ChunkPaths.get(finalNo),finalOutPath,resourcesPath);
                 (new File(O)).delete();
                 (new File(ChunkPaths.get(finalNo))).delete();
             }

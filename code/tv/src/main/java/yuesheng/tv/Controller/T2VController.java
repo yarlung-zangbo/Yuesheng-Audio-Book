@@ -37,16 +37,15 @@ public class T2VController {
     @Autowired
     UserDao userDao;
     @PostMapping(value = "/getaudio")
-    public Map<String,Object> T2V(@RequestParam("file") MultipartFile file, @RequestParam("title")String title,@RequestParam("BookId")Integer bookid, @RequestParam(required = false,value= "per") Integer person,
+    public Map<String,Object> T2V(@RequestParam("file") MultipartFile file, @RequestParam("title")String title, @RequestParam(required = false,value= "per") Integer person,
                                   @RequestParam("username") String userName,@RequestParam("name") String name){
-        /*User user = userDao.findByUsername(userName);
+        User user = userDao.findByUsername(userName);
         Soundbook soundbook = new Soundbook();
-        soundbook.setBookId(bookid);
         soundbook.setCreater(user);
         soundbook.setCreateTime(TimeTool.now());
         soundbook.setName(name);
-        soundbookDao.save(soundbook);*/
-
+        soundbookDao.save(soundbook);
+        int bookid = soundbookDao.findByName(name).get(0).getBookId();
         Map<String,Object> response = new HashMap();
         System.out.println(title);
         if(person==null) person = 3;

@@ -11,7 +11,7 @@ public class AudioSplitUtil {
         String result = "";
         System.out.println(resourcesPath);
         try {
-            Process process = Runtime.getRuntime().exec("python "+resourcesPath+"static/"+"AudioSpliter.py " +path);
+            Process process = Runtime.getRuntime().exec("python "+"AudioSpliter.py " +path);
 //            process.waitFor();
             InputStreamReader ir = new InputStreamReader(process.getInputStream());
             LineNumberReader input = new LineNumberReader(ir);

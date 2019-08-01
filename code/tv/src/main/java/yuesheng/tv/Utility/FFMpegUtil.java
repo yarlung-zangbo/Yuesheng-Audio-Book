@@ -68,9 +68,9 @@ public class FFMpegUtil {
         }
 
     }
-    public static void concatenator(String audioPath1,String audioPath2, String OutPath) throws Exception {
+    public static void concatenator(String audioPath1,String audioPath2, String OutPath,String resourcesPath) throws Exception {
         List<String> command = new ArrayList<String>();
-        String middleman = "src/main/resources/static/middle.mpg";
+        String middleman = resourcesPath+"static/middle.mpg";
         BufferedInputStream boi1 = new BufferedInputStream(new FileInputStream(new File(audioPath1)));
         BufferedInputStream boi2 = new BufferedInputStream(new FileInputStream(new File(audioPath2)));
         SequenceInputStream SIS = new SequenceInputStream(boi1,boi2);
