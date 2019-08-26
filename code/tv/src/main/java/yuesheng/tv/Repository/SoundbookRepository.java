@@ -9,5 +9,5 @@ import java.util.List;
 public interface SoundbookRepository extends JpaRepository<Soundbook, Integer> {
     public Soundbook deleteByBookId(int bookId);
     public List<Soundbook> findByNameContaining(String name);
-    public List<Soundbook> findByRealeaseLessThanAndNameContaining(String time, String name);
+    public List<Soundbook> findByRealeasetimeLessThanAndNameContaining(String time, String name);
 }

@@ -22,7 +22,7 @@ public class Soundbook {
     private String name;
     private User creater;
     private int mark;
-    private String realease;
+    private String realeasetime;
     private String disabled;
     private String createTime;
     private List<Comment> commentList;
@@ -74,11 +74,11 @@ public class Soundbook {
     @Column(name="releasetime")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     public String getRealease() {
-        return realease;
+        return realeasetime;
     }
 
     public void setRealease(String realease) {
-        this.realease = realease;
+        this.realeasetime = realease;
     }
 
     @Basic

@@ -52,14 +52,15 @@ public class V2Timpl implements V2T {
         System.out.println("22");
 
         // 可选：设置网络连接参数
-        client.setConnectionTimeoutInMillis(2000000);
-        client.setSocketTimeoutInMillis(6000000);
+        client.setConnectionTimeoutInMillis(20000);
+        client.setSocketTimeoutInMillis(600000);
         Map<String,Object> response = new HashMap<>();
         System.out.println("22");
         // 可选：设置log4j日志输出格式，若不设置，则使用默认配置
         // 也可以直接通过jvm启动参数设置此环境变量
         System.setProperty("aip.log4j.conf", resourcesPath+"log4j.properties");
         BufferedOutputStream BOS = new BufferedOutputStream(new FileOutputStream(new File(resourcesPath+title+".txt")));
+        System.out.println("f");
         int length = data.length, ptr = 0, step = 0;
         System.out.println("length: "+length);
         String originalAudio = resourcesPath+"static/process/"+title+".wav";
@@ -68,7 +69,7 @@ public class V2Timpl implements V2T {
         int count=0;
         System.out.println("printing segments");
         for(int i=0;i<segments;i++){
-            output = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendage+".mpg";
+            System.out.println(i);
             String segmentPath = resourcesPath+"static/process/chunks/"+String.format("%04d",i)+".wav";
             String tSegmentPath  = resourcesPath+"static/process/chunks/"+String.format("%04d",i)+".mpg";
             FFMpegUtil.tickFormat(segmentPath,tSegmentPath);
@@ -76,6 +77,7 @@ public class V2Timpl implements V2T {
             else {
                 OOutput = output;
                 output = resourcesPath+"static/process/"+title+"_"+bgmNo+"_"+appendage+".wav";
+                System.out.println("OOutput: "+OOutput+ " output: "+output);
                 FFMpegUtil.concatenator(OOutput,tSegmentPath,output);
                 (new File(OOutput)).delete();
             }
@@ -89,6 +91,7 @@ public class V2Timpl implements V2T {
             count+=line.length();
             textBuffer.append(line);
             List<String> soundEffects = SoundEffect.VerifySE(line,resourcesPath);
+            System.out.println(line);
             int len = soundEffects.size();
             for(int j=0;j<len;j++){
                 Sound sound = soundDao.findByName(soundEffects.get(j));

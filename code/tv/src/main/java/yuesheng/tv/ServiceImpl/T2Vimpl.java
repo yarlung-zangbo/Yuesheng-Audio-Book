@@ -37,13 +37,13 @@ public class T2Vimpl implements T2V {
     String resourcesPath;
     @Override
     public Map<String, Object> TextToAudioBinary(String text, String title, Integer person) {
+        System.out.println("API_KEY: "+API_KEY+" APP_ID: "+APP_ID+" SECRET_KEY: "+SECRET_KEY);
         ContextBuilder.buildContext(resourcesPath);
         // 初始化一个AipSpeech
         AipSpeech client = new AipSpeech(APP_ID, API_KEY, SECRET_KEY);
         // 可选：设置网络连接参数
-        System.out.println("api");
-        client.setConnectionTimeoutInMillis(2000000);
-        client.setSocketTimeoutInMillis(60000000);
+        client.setConnectionTimeoutInMillis(2000);
+        client.setSocketTimeoutInMillis(6000);
         // 可选：设置代理服务器地址, http和socket二选一，或者均不设置
         //client.setHttpProxy("proxy_host", 80);  // 设置http代理
         //client.setSocketProxy("proxy_host", proxy_port);  // 设置socket代理

@@ -15,6 +15,7 @@ public class AudioSplitUtil {
 //            process.waitFor();
             InputStreamReader ir = new InputStreamReader(process.getInputStream());
             LineNumberReader input = new LineNumberReader(ir);
+            System.out.println("aha");
             result = input.readLine();
             input.close();
             ir.close();

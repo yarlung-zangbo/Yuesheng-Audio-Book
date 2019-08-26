@@ -29,10 +29,15 @@ public class CorrelationComputer {
         ImmutablePair<String,Integer> chosen = new ImmutablePair<>("",1<<31);
         int Nsize = BGMNames.size();
         List<EmotionMap> EMMappings = emotionMapRepository.findAll();
+        List<BGM> ABGMMappings = bgmRepository.findAll();
+        int mappingSize = ABGMMappings.size();
         for(int i=0;i<Nsize;i++) {
             int score=0;
             String name = BGMNames.get(i).getName();
-            List<BGM> BGMMappings = bgmRepository.findByKeyName(name);
+            List<BGM> BGMMappings = new ArrayList<>();
+            for(int k=0;k<mappingSize;k++){
+                if(ABGMMappings.get(k).getKey().getName().equals(name)) BGMMappings.add(ABGMMappings.get(k));
+            }
             int Msize = BGMMappings.size();
             for(int j=0;j<Msize;j++) {
                 String mood = BGMMappings.get(j).getKey().getMood();

@@ -43,8 +43,7 @@ public class V2TController {
         soundbook.setName(title);
         soundbook.setCreater(user);
         soundbook.setCreateTime(TimeTool.now());
-        soundbookDao.save(soundbook);
-        int bookId = soundbookDao.findByName(title).get(0).getBookId();
+        int bookId = soundbookDao.save(soundbook).getBookId();
         try {
             BufferedInputStream BIS = new BufferedInputStream(file.getInputStream());
             ByteArrayOutputStream BAOS = new ByteArrayOutputStream();
